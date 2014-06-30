@@ -321,9 +321,9 @@ static struct PyModuleDef moduledef = {
 //PyObject *
 PyMODINIT_FUNC
 #ifdef CLD2_FULL
-PyInit_pycld2full(void)
+PyInit__pycld2full(void)
 #else
-PyInit_pycld2(void)
+PyInit__pycld2(void)
 #endif
 
 #else  // IS_PY3K
@@ -332,9 +332,9 @@ PyInit_pycld2(void)
 
 PyMODINIT_FUNC
 #ifdef CLD2_FULL
-initpycld2full()
+init_pycld2full()
 #else
-initpycld2()
+init_pycld2()
 #endif
 #endif
 {
@@ -343,9 +343,9 @@ initpycld2()
   PyObject *m = PyModule_Create(&moduledef);
 #else
 #ifdef CLD2_FULL
-  PyObject* m = Py_InitModule("pycld2full", CLDMethods);
+  PyObject* m = Py_InitModule("_pycld2full", CLDMethods);
 #else
-  PyObject* m = Py_InitModule("pycld2", CLDMethods);
+  PyObject* m = Py_InitModule("_pycld2", CLDMethods);
 #endif
 #endif
 

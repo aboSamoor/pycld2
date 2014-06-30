@@ -57,7 +57,7 @@ src_files = ['{}/internal/{}'.format(CLD2_PATH, f) for f in cld_files]
 
 src_files.extend(['%s/pycldmodule.cc' % BIND_PATH, '%s/encodings.cc' % BIND_PATH])
 
-module = Extension('pycld2.pycld2',
+module = Extension('pycld2._pycld2',
                    language='c++',
                    extra_compile_args=['-w', '-O2', '-m64', '-fPIC'],
                    include_dirs = ['%s/public' % CLD2_PATH,
