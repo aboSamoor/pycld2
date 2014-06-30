@@ -1,4 +1,4 @@
-# CLD - Compact Language Detector
+# PYCLD2 - Python Bindings for Compact Language Detector 2
 
 This package contains the CLD (Compact Language Detection) library as maintained by Dick Sites (https://code.google.com/p/cld2/). The first fork was done at revision r161. It also contains python bindings that were originally created by [Mike McCandless](http://code.google.com/p/chromium-compact-language-detector). The bindings here differ than upstream by making the full set of languages the default option supporting more than 165 languages!
 
