@@ -41,6 +41,8 @@ class cldtest(distutils.core.Command):
 src_files = glob.glob(CLD2_PATH+'/internal/*.cc') + ['%s/pycldmodule.cc' % BIND_PATH, '%s/encodings.cc' % BIND_PATH]
 
 
+# These files list  is taken from the cld2/internal/compile_libs.sh
+# target libcld2_full.so, we will build the largest detector ever!
 cld_files = ['cldutil.cc', 'cldutil_shared.cc', 'compact_lang_det.cc',
              'compact_lang_det_hint_code.cc', 'compact_lang_det_impl.cc',
              'debug.cc', 'fixunicodevalue.cc', 'generated_entities.cc',
