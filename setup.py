@@ -68,6 +68,10 @@ module = Extension('pycld2._pycld2',
                    sources=src_files,
                    )
 
+test_requirements = [
+    # TODO: put package test requirements here
+]
+
 setup(name='pycld2',
       version='0.1',
       author='Michael McCandless',
@@ -82,10 +86,15 @@ setup(name='pycld2',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: C++',
-        'Programming Language :: Python',
+        "Programming Language :: Python :: 2",
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Text Processing :: Linguistic'
         ],
       packages=["pycld2"],
+      test_suite='tests',
+      tests_require=test_requirements,
       )
