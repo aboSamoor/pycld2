@@ -1,6 +1,9 @@
 # PYCLD2 - Python Bindings for Compact Language Detector 2
 
+
+[
 ![Alt text](https://travis-ci.org/aboSamoor/pycld2.png?branch=master "https://travis-ci.org/aboSamoor/pycld2.png?branch=master")
+](https://travis-ci.org/aboSamoor/pycld2)
 
 
 
