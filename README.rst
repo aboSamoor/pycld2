@@ -1,7 +1,29 @@
 PYCLD2 - Python Bindings for Compact Language Detector 2
 ========================================================
 
-|Alt text|
+.. image:: https://pypip.in/download/pycld2/badge.svg
+       :target: https://pypi.python.org/pypi/pycld2
+       :alt: Downloads
+
+.. image:: https://pypip.in/version/pycld2/badge.svg
+       :target: https://pypi.python.org/pypi/pycld2
+       :alt: Latest Version
+
+.. image:: https://pypip.in/py_versions/pycld2/badge.svg
+       :target: https://pypi.python.org/pypi/pycld2/
+       :alt: Supported Python versions
+
+.. image:: https://pypip.in/status/pycld2/badge.svg
+       :target: https://pypi.python.org/pypi/pycld2/
+       :alt: Development Status
+
+.. image:: https://pypip.in/format/pycld2/badge.svg
+       :target: https://pypi.python.org/pypi/pycld2/
+       :alt: Download format
+
+.. image:: https://travis-ci.org/aboSamoor/pycld2.png?branch=master
+        :target: https://travis-ci.org/aboSamoor/pycld2
+        :alt: Build status
 
 This package contains the CLD (Compact Language Detection) library as
 maintained by Dick Sites (https://code.google.com/p/cld2/). The first

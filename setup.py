@@ -26,6 +26,9 @@ from os import path as p
 CLD2_PATH = 'cld2'
 BIND_PATH = 'bindings'
 
+with open('README.rst') as readme_file:
+  readme = readme_file.read()
+
 # Test suite
 class cldtest(distutils.core.Command):
     # user_options, initialize_options and finalize_options must be overriden.
@@ -77,7 +80,7 @@ test_requirements = [
 ]
 
 setup(name='pycld2',
-      version='0.22',
+      version='0.24',
       author='Rami Al-Rfou',
       author_email='rmyeid@gmail.com',
       description='Python bindings around Google Chromium\'s embedded compact language detection library (CLD2)',
