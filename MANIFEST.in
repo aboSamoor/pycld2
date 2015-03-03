@@ -1,0 +1,2 @@
+include cld2/internal/*.h
+include cld2/public/*.h

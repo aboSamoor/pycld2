@@ -21,6 +21,7 @@ import subprocess
 import sys
 import os
 import glob
+from os import path as p
 
 CLD2_PATH = 'cld2'
 BIND_PATH = 'bindings'
@@ -38,7 +39,9 @@ class cldtest(distutils.core.Command):
         errno = subprocess.call([sys.executable, 'tests/cld_test.py'])
         raise SystemExit(errno)
 
-src_files = glob.glob(CLD2_PATH+'/internal/*.cc') + ['%s/pycldmodule.cc' % BIND_PATH, '%s/encodings.cc' % BIND_PATH]
+src_files = (glob.glob(p.join(CLD2_PATH, 'internal', '*.cc')) +
+             [p.join(BIND_PATH, 'pycldmodule.cc'),
+              p.join(BIND_PATH, 'encodings.cc')])
 
 
 # These files list  is taken from the cld2/internal/compile_libs.sh
@@ -55,15 +58,16 @@ cld_files = ['cldutil.cc', 'cldutil_shared.cc', 'compact_lang_det.cc',
              'cld2_generated_distinctocta0122.cc',
              'cld_generated_score_quad_octa_0122.cc']
 
-src_files = ['{}/internal/{}'.format(CLD2_PATH, f) for f in cld_files]
+src_files = [p.join(CLD2_PATH, 'internal', f) for f in cld_files]
 
-src_files.extend(['%s/pycldmodule.cc' % BIND_PATH, '%s/encodings.cc' % BIND_PATH])
+src_files.extend([p.join(BIND_PATH, 'pycldmodule.cc'),
+                  p.join(BIND_PATH, 'encodings.cc')])
+include_dirs = [p.join(CLD2_PATH, 'internal'), p.join(CLD2_PATH, 'public')]
 
 module = Extension('pycld2._pycld2',
                    language='c++',
                    extra_compile_args=['-w', '-O2', '-m64', '-fPIC'],
-                   include_dirs = ['%s/public' % CLD2_PATH,
-                                   '%s/internal' % CLD2_PATH],
+                   include_dirs=include_dirs,
                    libraries = [],
                    sources=src_files,
                    )
@@ -74,14 +78,14 @@ test_requirements = [
 
 setup(name='pycld2',
       version='0.1',
-      author='Michael McCandless',
-      author_email='mail@mikemccandless.com',
+      author='Rami Al-Rfou',
+      author_email='rmyeid@gmail.com',
       description='Python bindings around Google Chromium\'s embedded compact language detection library (CLD2)',
       ext_modules = [module],
       license = 'Apache2',
-      url = 'http://code.google.com/p/chromium-compact-language-detector/',
+      url = 'https://github.com/aboSamoor/pycld2',
       classifiers = [
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
