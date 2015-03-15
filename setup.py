@@ -80,7 +80,7 @@ test_requirements = [
 ]
 
 setup(name='pycld2',
-      version='0.30',
+      version='0.31',
       author='Rami Al-Rfou',
       author_email='rmyeid@gmail.com',
       description='Python bindings around Google Chromium\'s embedded compact language detection library (CLD2)',
