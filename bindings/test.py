@@ -134,21 +134,39 @@ testData = (
   ('VIETNAMESE', ' adsense cho nội dung nhà cung cấp dịch vụ di động xác minh tín dụng thay đổi nhãn kg các ô xem chi phí cho từ chối các đơn đặt hàng dạng cấp dữ liệu ác minh trang web của bạn để xem'),
   ('WELSH', ' a chofrestru eich cyfrif ymwelwch a unwaith i chi greu eich cyfrif mi fydd yn cael ei hysbysu o ch cyfeiriad ebost newydd fel eich bod yn gallu cadw mewn cysylltiad drwy gmail os nad ydych chi wedi clywed yn barod am gmail mae n gwasanaeth gwebost'),
   ('YIDDISH', 'און פאנטאזיע ער איז באקאנט צים מערסטן פאר זיינע באַלאַדעס ער האָט געוווינט אין ווארשע יעס פאריס ליווערפול און לאנדאן סוף כל סוף איז ער'),
-  ('SOMALI', ' a oo maanta bogga koobaad ugu qoran yahey beesha caalamka laakiin si kata oo beesha caalamku ula guntato soomaaliya waxa aan shaki ku jirin in aakhirataanka dadka soomaalida oo kaliya ay yihiin ku soomaaliya ka saari kara dhibka ay ku jirto'),
-  ('IGBO', 'Chineke bụ aha ọzọ ndï omenala Igbo kpọro Chukwu. Mgbe ndị bekee bịara, ha mee ya nke ndi Christian. N\'echiche ndi ekpere chi Omenala Ndi Igbo, Christianity, Judaism, ma Islam, Chineke nwere ọtụtụ utu aha, ma nwee nanị otu aha. Ụzọ abụọ e si akpọ aha ahụ bụ Jehovah ma Ọ bụ Yahweh. Na ọtụtụ Akwụkwọ Nsọ, e wepụla aha Chineke ma jiri utu aha bụ Onyenwe Anyị ma ọ bụ Chineke dochie ya. Ma mgbe e dere akwụkwọ nsọ, aha ahụ bụ Jehova pụtara n’ime ya, ihe dị ka ugboro pụkụ asaa(7,000).'),
-  ('HAUSA', ' a cikin a kan sakamako daga sakwannin a kan sakamako daga sakwannin daga ranar zuwa a kan sakamako daga guda daga ranar zuwa a kan sakamako daga shafukan daga ranar zuwa a kan sakamako daga guda a cikin last hour a kan sakamako daga guda daga kafar'),
-  ('YORUBA', ' abinibi han ikawe alantakun le ni opolopo ede abinibi ti a to lesese bi eniyan to fe lo se fe lati se atunse jowo mo pe awon oju iwe itakunagbaye miran ti ako ni oniruru ede abinibi le faragba nipa atunse ninu se iwadi blogs ni ori itakun agbaye ti e ba'),
-  ('ZULU', ' ana engu uma inkinga iqhubeka siza ubike kwi isexwayiso ngenxa yephutha lomlekeleli sikwazi ukubuyisela emuva kuphela imiphumela engaqediwe ukuthola imiphumela eqediwe zama ukulayisha kabusha leli khasi emizuzwini engu uma inkinga iqhubeka siza uthumele'),
+
   ('BOSNIAN', 'Novi predsjednik Mešihata Islamske zajednice u Srbiji (IZuS) i muftija dr. Mevlud ef. Dudić izjavio je u intervjuu za Anadolu Agency (AA) kako je uvjeren da će doći do vraćanja jedinstva među muslimanima i unutar Islamske zajednice na prostoru Sandžaka, te da je njegova ruka pružena za povratak svih u okrilje Islamske zajednice u Srbiji nakon skoro sedam godina podjela u tom dijelu Srbije. Dudić je za predsjednika Mešihata IZ u Srbiji izabran 4. januara, a zvanična inauguracija će biti obavljena u prvoj polovini februara. Kako se očekuje, prisustvovat će joj i reisu-l-ulema Islamske zajednice u Srbiji Husein ef. Kavazović koji će i zvanično promovirati Dudića u novog prvog čovjeka IZ u Srbiji. Dudić će danas boraviti u prvoj zvaničnoj posjeti reisu Kavazoviću, što je njegov privi simbolični potez nakon imenovanja. '),
   ('INDONESIAN', 'sukiyaki wikipedia indonesia ensiklopedia bebas berbahasa bebas berbahasa indonesia langsung ke navigasi cari untuk pengertian lain dari sukiyaki lihat sukiyaki irisan tipis daging sapi sayur sayuran dan tahu di dalam panci besi yang dimasak di atas meja makan dengan cara direbus sukiyaki dimakan dengan mence'),
   ('MALAY', 'sukiyaki wikipedia bahasa melayu ensiklopedia bebas sukiyaki dari wikipedia bahasa melayu ensiklopedia bebas lompat ke navigasi gelintar sukiyaki sukiyaki  hirisan tipis daging lembu sayur sayuran dan tauhu di dalam periuk besi yang dimasak di atas meja makan dengan cara rebusan sukiyaki dimakan dengan mence'),
   ('FRENCH', fr_en_Latn),
 
+  # Added 2014.10.15
+  ('KAZAKH',  'а билердің өзіне рұқсат берілмеген егер халық талап етсе ғана хан келісім берген өздеріңіз білесіздер қр қыл мыс тық кодексінде жазаның'),
+  ('KURDISH',  'Nû pêvajo ya ezmûn ya pêşin di dîtin ku cezayên pêkan bi biryar standin, jûriyên neh zilam û sê jin wê gelektir govanan guhdar bike, bendewarî nav 3-mehan xilas be, ku zilamê Fransî yê 37 salê wê bi berdarî û heta mirinê bi avêtin zindanê.'),         # aka kmr
+  ('KYRGYZ',  'агай эле оболу мен садыбакас аганын өзү менен эмес эмгектери менен тааныштым жылдары ташкенде өзбекстан илимдер академиясынын баяны'),
+  ('MALAGASY',  'amporisihin i ianao mba hijery ny dika teksta ranofotsiny an ity lahatsoratra ity tsy ilaina ny opérateur efa karohina daholo ny teny rehetra nosoratanao ampiasao anaovana dokambarotra i google telugu datin ny takelaka fikarohana sary renitakelak i'),
+  ('MALAYALAM',  'ം അങ്ങനെ ഞങ്ങള് അവരുടെ മുമ്പില് നിന്നു ഔടും ഉടനെ നിങ്ങള് പതിയിരിപ്പില് നിന്നു എഴുന്നേറ്റു'),
+  ('BURMESE',  'တက္ကသုိလ္ မ္ဟ ပ္ရန္ လာ္ရပီးေနာက္ န္ဟစ္ အရ္ဝယ္ ဦးသန္ ့သည္ ပန္ းတနော္ အမ္ယုိးသား ေက္ယာင္ း'),
+  ('NYANJA',  'Boma ndi gawo la dziko lomwe linapangidwa ndi cholinga chothandiza ntchito yolamulira. Kuŵalako kulikuunikabe mandita, Edipo nyima unalephera kugonjetsa kuŵalako.'),
+  ('SINHALESE',  'අනුරාධ මිහිඳුකුල නමින් සකුරා ට ලිපියක් තැපෑලෙන් එවා තිබුණා කි ් රස්ටි ෂෙල්ටන් ප ් රනාන්දු ද'),     # aka SINHALA
+  ('SESOTHO',  'bang ba nang le thahasello matshwao a sehlooho thuto e thehilweng hodima diphetho ke tsela ya ho ruta le ho ithuta e totobatsang hantle seo baithuti ba lokelang ho se fihlella ntlhatheo eo e sebetsang ka yona ke ya hore titjhere o hlakisa pele seo'),
+  ('SUNDANESE',  'Nu ngatur kahirupan warga, keur kapentingan pamarentahan diatur ku RT, RW jeung Kepala Dusun, sedengkeun urusan adat dipupuhuan ku Kuncen jeung kepala adat. Sanajan Kampung Kuta teu pati anggang jeung lembur sejenna nu aya di wewengkon Desa Pasir Angin, tapi boh wangunan imah atawa tradisi kahirupan masarakatna nenggang ti nu lian.'),
+  ('TAJIK',  'адолат ва инсондӯстиро бар фашизм нажодпарастӣ ва адоват тарҷеҳ додааст чоп кунед ба дигарон фиристед чоп кунед ба дигарон фиристед'),
+  ('UZBEK',  'abadiylashtirildi aqsh ayol prezidentga tayyormi markaziy osiyo afg onistonga qanday yordam berishi mumkin ukrainada o zbekistonlik muhojirlar tazyiqdan shikoyat qilmoqda gruziya va ukraina hozircha natoga qabul qilinmaydi afg oniston o zbekistonni g'),
+  ('UZBEK',  'а гапирадиган бўлсак бунинг иккита йўли бор биринчиси мана шу қуриган сатҳини қумликларни тўхтатиш учун экотизимни мустаҳкамлаш қумга'),
+
   # This is just the "version marker":
-  ('AZERBAIJANI', 'qpdbmrmxyzptlkuuddlrlrbas las les qpdbmrmxyzptlkuuddlrlrbas el la qpdbmrmxyzptlkuuddlrlrbas'),
+  ('TURKISH', 'qpdbmrmxyzptlkuuddlrlrbas las les qpdbmrmxyzptlkuuddlrlrbas el la qpdbmrmxyzptlkuuddlrlrbas'),
   )
 
-fullTestData = testData[:-1] + (
+fullTestData = tuple(x for x in testData[:-1] if x[0] != 'KURDISH') + (
+  # Moved from small table to full table as of Oct 2014 release:
+  ('SOMALI', ' a oo maanta bogga koobaad ugu qoran yahey beesha caalamka laakiin si kata oo beesha caalamku ula guntato soomaaliya waxa aan shaki ku jirin in aakhirataanka dadka soomaalida oo kaliya ay yihiin ku soomaaliya ka saari kara dhibka ay ku jirto'),
+  ('IGBO', 'Chineke bụ aha ọzọ ndï omenala Igbo kpọro Chukwu. Mgbe ndị bekee bịara, ha mee ya nke ndi Christian. N\'echiche ndi ekpere chi Omenala Ndi Igbo, Christianity, Judaism, ma Islam, Chineke nwere ọtụtụ utu aha, ma nwee nanị otu aha. Ụzọ abụọ e si akpọ aha ahụ bụ Jehovah ma Ọ bụ Yahweh. Na ọtụtụ Akwụkwọ Nsọ, e wepụla aha Chineke ma jiri utu aha bụ Onyenwe Anyị ma ọ bụ Chineke dochie ya. Ma mgbe e dere akwụkwọ nsọ, aha ahụ bụ Jehova pụtara n’ime ya, ihe dị ka ugboro pụkụ asaa(7,000).'),
+  ('HAUSA', ' a cikin a kan sakamako daga sakwannin a kan sakamako daga sakwannin daga ranar zuwa a kan sakamako daga guda daga ranar zuwa a kan sakamako daga shafukan daga ranar zuwa a kan sakamako daga guda a cikin last hour a kan sakamako daga guda daga kafar'),
+  ('YORUBA', ' abinibi han ikawe alantakun le ni opolopo ede abinibi ti a to lesese bi eniyan to fe lo se fe lati se atunse jowo mo pe awon oju iwe itakunagbaye miran ti ako ni oniruru ede abinibi le faragba nipa atunse ninu se iwadi blogs ni ori itakun agbaye ti e ba'),
+  ('ZULU', ' ana engu uma inkinga iqhubeka siza ubike kwi isexwayiso ngenxa yephutha lomlekeleli sikwazi ukubuyisela emuva kuphela imiphumela engaqediwe ukuthola imiphumela eqediwe zama ukulayisha kabusha leli khasi emizuzwini engu uma inkinga iqhubeka siza uthumele'),
+
   ('MONGOLIAN', 'ᠦᠭᠡ ᠵᠢᠨ ᠴᠢᠨᠭ᠎ᠠ ᠬᠦᠨᠳᠡᠢ ᠵᠢ ᠢᠯᠭᠠᠬᠣ'),
   ('X_Buginese', 'ᨄᨛᨑᨊᨒ ᨑᨗ ᨔᨒᨗᨓᨛ ᨕᨗᨋᨗᨔᨗ ᨒᨛᨄ ᨑᨛᨔᨛᨆᨗᨊ'),
   ('X_Gothic', '𐌰 𐌰𐌱𐍂𐌰𐌷𐌰𐌼 𐌰𐌲𐌲𐌹𐌻𐌹𐍃𐌺𐍃 𐌸𐌹𐌿𐌳𐌹𐍃𐌺𐍃 𐍆𐍂𐌰𐌲𐌺𐌹𐍃𐌺𐍃'),
@@ -242,6 +260,9 @@ fullTestData = testData[:-1] + (
   ('ICELANDIC', 'qpdbmrmxyzptlkuuddlrlrbas las les qpdbmrmxyzptlkuuddlrlrbas el la qpdbmrmxyzptlkuuddlrlrbas'),
 )
 
+# Simple English with bad UTF-8
+TEST_EN_LATN_BAD_UTF8 = b'Forty good bytes followed by bad UTF-8:\'\xC0\xA9\' and then good again.';
+
 class TestCLD(unittest.TestCase):
 
   langsSeen = set()
@@ -268,7 +289,7 @@ class TestCLD(unittest.TestCase):
           print('  details: %s' % str(details))
 
         try:
-          self.assertEqual(expectedLangName, detectedLangName, '%s != %s; details: %s' % (detectedLangName, expectedLangName, str(details)))
+          self.assertEqual(expectedLangName, detectedLangName, 'full?=%s %s != %s; details: %s' % (doFull, detectedLangName, expectedLangName, str(details)))
         except:
           traceback.print_exc()
           failed = True
@@ -301,14 +322,8 @@ class TestCLD(unittest.TestCase):
         isReliable, textBytesFound, details, vectors = detector.detect(text, returnVectors=True)
         self.assertTrue(textBytesFound > 0)
         if text == fr_en_Latn:
-          if detector == cld2:
-            self.assertEqual(4, len(vectors))
-            self.assertEqual(('en', 'fr', 'un', 'en'), tuple(x[3] for x in vectors))
-            #print('small: %s' % str(vectors))
-          else:
-            self.assertEqual(3, len(vectors))
-            self.assertEqual(('en', 'fr', 'en'), tuple(x[3] for x in vectors))
-            #print('large: %s' % str(vectors))
+          self.assertEqual(3, len(vectors))
+          self.assertEqual(('en', 'fr', 'en'), tuple(x[3] for x in vectors))
 
   def test_encoding_hint(self):
     for detector in cld2, cld2full:
@@ -348,6 +363,40 @@ class TestCLD(unittest.TestCase):
     for detector in cld2, cld2full:
       isReliable, textBytesFound, details, vectors = detector.detect('interaktive infografik \xc3\xbcber videospielkonsolen', returnVectors = True)
       self.assertEqual(3, len(details))
+
+  def test_random_bytes(self):
+    for detector in cld2, cld2full:
+      for i in range(100):
+        # This hits SEGV in versions before 20141016:
+        try:
+          isReliable, textBytesFound, details, vectors = detector.detect(os.urandom(100), returnVectors = True)
+        except detector.error:
+          # expected
+          pass
+
+  def test_invalid_utf8(self):
+    for detector in cld2, cld2full:
+      try:
+        isReliable, textBytesFound, details, vectors = detector.detect(TEST_EN_LATN_BAD_UTF8, returnVectors = True)
+        self.fail('did not hit expected exception: %s vs %s' % (textBytesFound, len(TEST_EN_LATN_BAD_UTF8)))
+      except detector.error:
+        # expected
+        pass
+      except:
+        print('GOT WRONG EXC: %s vs %s: %s' % (str(sys.exc_info()), cld2.error, cld2.error == sys.exc_info()[0]))
+
+  def test_best_effort(self):
+    for detector in cld2, cld2full:
+      isReliable, textBytesFound, details = detector.detect('interaktive infografik \xc3\xbcber videospielkonsolen')
+
+      # Too little text:
+      self.assertFalse(isReliable)
+      self.assertEqual(details[0][0], 'Unknown')
+
+      # Do it again, forcing bestEffort:
+      isReliable, textBytesFound, details = detector.detect('interaktive infografik \xc3\xbcber videospielkonsolen', bestEffort=True)
+      self.assertTrue(isReliable)
+      self.assertNotEqual(details[0][0], 'Unknown')
 
 if __name__ == '__main__':
   try:

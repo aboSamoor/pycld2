@@ -6,17 +6,22 @@ Dick Sites (and others) at Google graciously provided a new version
 and I (lucene@mikemccandless.com) created the Python bindings and
 ported the C++ test case to test.py.
 
-This has been tested on Ubuntu 12.10, with both Python 2.7.3 and
-3.2.3.
+This has been tested on Ubuntu 14.04, with both Python 2.7.6 and
+3.4.0.
+
+Updated Nov 11 2014 to the latest CLD2 release, adding new bestEffort
+flag (to force a guess even when confidence is low), and cutting over
+to the CLD2 methods that confirm incoming UTF-8 is valid.
 
 To build:
 
-  * First checkout cld2 and run internal/compile_libs.sh.  This will
-    create both libcld2.so (detects 83 languages) and libcld2_full.so
-    (detects 163 languages).  Install those libraries somewhere on
-    your LD_LIBRARY_PATH, for example copy them into /usr/lib64.
+  * First checkout cld2, cd internal, run compile_libs.sh.  This will
+    create both libcld2.so (small tables, detects 83 languages) and
+    libcld2_full.so (large tables, detects 163 languages).  Install
+    those libraries somewhere on your LD_LIBRARY_PATH, for example
+    copy them into /usr/lib.
 
-  * Edit both setup.py and setup_full.py: edit CLD2_PATH to point to
+  * Edit both setup.py and setup_full.py: change CLD2_PATH to point to
     where you checked out the CLD2 sources.
 
   * python setup.py build

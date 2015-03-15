@@ -20,7 +20,11 @@ import platform
 import subprocess
 import sys
 import os
+import shutil
 
+if os.path.exists('build'):
+    shutil.rmtree('build')
+    
 # NOTE: change this to point to where you checked out the CLD2
 # sources:
 CLD2_PATH = '../cld2'

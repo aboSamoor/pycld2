@@ -71,6 +71,7 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   int flagVerbose = 0;
   int flagQuiet = 0;
   int flagEcho = 0;
+  int flagBestEffort = 0;
 
   static const char *kwList[] = {"utf8Bytes",
                                  "isPlainText",
@@ -103,9 +104,15 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
                                  /* Echo every input buffer to stderr. */
                                  "debugEcho",
 
+                                 /* If true, allow low-quality results for short text,
+                                    rather than forcing the result to UNKNOWN_LANGUAGE. This may be of use for
+                                    those desiring approximate results on short input text, but there is no claim
+                                    that these results ave very good. make a guess at the language even if quality is low (text is short) */
+                                 "bestEffort",
+
                                  NULL};
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwArgs, "s#|izzzziiiiiii",
+  if (!PyArg_ParseTupleAndKeywords(args, kwArgs, "s#|izzzziiiiiiii",
                                    (char **) kwList,
                                    &bytes, &numBytes,
                                    &isPlainText,
@@ -119,7 +126,8 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
                                    &flagCR,
                                    &flagVerbose,
                                    &flagQuiet,
-                                   &flagEcho)) {
+                                   &flagEcho,
+                                   &flagBestEffort)) {
     return 0;
   }
 
@@ -141,6 +149,9 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   }
   if (flagEcho != 0) {
     flags |= CLD2::kCLDFlagEcho;
+  }
+  if (flagBestEffort != 0) {
+    flags |= CLD2::kCLDFlagBestEffort;
   }
 
   PyObject *CLDError = GETSTATE(self)->error;
@@ -172,20 +183,27 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   int percent3[3];
   double normalized_score3[3];
   int textBytesFound;
+  int validPrefixBytes;
   CLD2::ResultChunkVector resultChunkVector;
 
   Py_BEGIN_ALLOW_THREADS
-  CLD2::ExtDetectLanguageSummary(bytes, numBytes,
-                                 isPlainText != 0,
-                                 &cldHints,
-                                 flags,
-                                 language3,
-                                 percent3,
-                                 normalized_score3,
-                                 returnVectors != 0 ? &resultChunkVector : 0,
-                                 &textBytesFound,
-                                 &isReliable);
+  CLD2::ExtDetectLanguageSummaryCheckUTF8(bytes, numBytes,
+                                          isPlainText != 0,
+                                          &cldHints,
+                                          flags,
+                                          language3,
+                                          percent3,
+                                          normalized_score3,
+                                          returnVectors != 0 ? &resultChunkVector : 0,
+                                          &textBytesFound,
+                                          &isReliable,
+                                          &validPrefixBytes);
   Py_END_ALLOW_THREADS
+
+  if (validPrefixBytes < numBytes) {
+    PyErr_Format(CLDError, "input contains invalid UTF-8 around byte %d (of %d)", validPrefixBytes, numBytes);
+    return 0;
+  }
 
   PyObject *details = PyTuple_New(3);
   for(int idx=0;idx<3;idx++) {
@@ -223,6 +241,7 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
                            textBytesFound,
                            details);
   }
+
   Py_DECREF(details);
   return result;
 }
@@ -231,22 +250,23 @@ const char *DOC =
   "Detect language(s) from a UTF8 string.\n\n"
 
   "Arguments:\n\n"
-  "  utf8Bytes: text to detect, encoded as UTF-8 bytes (required)\n\n"
+  "  utf8Bytes: The text to detect, encoded as UTF-8 bytes (required).  If\n"
+  "             this is not valid UTF-8, then an cld2.error is raised.\n\n"
 
-  "  isPlainText: if False, then the input is HTML and CLD will skip HTML tags,\n"
+  "  isPlainText: If False, then the input is HTML and CLD will skip HTML tags,\n"
   "               expand HTML entities, detect HTML <lang ...> tags, etc.\n\n"
 
-  "  hintTopLevelDomain: e.g., 'id' boosts Indonesian\n\n"
+  "  hintTopLevelDomain: E.g., 'id' boosts Indonesian\n\n"
 
-  "  hintLanguage: e.g., 'ITALIAN' or 'it' boosts Italian; see cld.LANGUAGES\n"
+  "  hintLanguage: E.g., 'ITALIAN' or 'it' boosts Italian; see cld.LANGUAGES\n"
   "                for all known language\n\n"
 
-  "  hintLanguageHTTPHeaders: e.g., 'mi,en' boosts Maori and English\n\n"
+  "  hintLanguageHTTPHeaders: E.g., 'mi,en' boosts Maori and English\n\n"
 
-  "  hintEncoding: e.g, 'SJS' boosts Japanese; see cld.ENCODINGS for all known\n"
+  "  hintEncoding: E.g, 'SJS' boosts Japanese; see cld.ENCODINGS for all known\n"
   "                encodings\n\n"
 
-  "  returnVectors: if True then the vectors indicating which language was\n"
+  "  returnVectors: If True then the vectors indicating which language was\n"
   "                 detected in which byte range are returned in addition to\n"
   "                 details.  The vectors are a sequence of (bytesOffset,\n"
   "                 bytesLength, languageName, languageCode), in order.\n"
@@ -264,6 +284,12 @@ const char *DOC =
   "  debugHTML: For each detection call, write an HTML file to stderr, showing the\n"
   "             text chunks and their detected languages.  See\n"
   "             docs/InterpretingCLD2UnitTestOutput.pdf to interpret this output.\n\n"
+
+  "  bestEffort: If True then allow low-quality results for short text,\n"
+  "              rather than forcing the result to UNKNOWN_LANGUAGE.  This\n"
+  "              may be of use for those desiring approximate results on\n"
+  "              short input text, but there is no claim that these result\n"
+  "              are very good.\n\n"
 
   "  debugCR: In that HTML file, force a new line for each chunk.\n\n"
 
@@ -320,21 +346,33 @@ static struct PyModuleDef moduledef = {
 
 //PyObject *
 PyMODINIT_FUNC
-PyInit__pycld2(void)
+#ifdef CLD2_FULL
+PyInit_cld2full(void)
+#else
+PyInit_cld2(void)
+#endif
 
 #else  // IS_PY3K
 
 #define INITERROR return
 
 PyMODINIT_FUNC
-init_pycld2()
+#ifdef CLD2_FULL
+initcld2full()
+#else
+initcld2()
+#endif
 #endif
 {
 
 #ifdef IS_PY3K
   PyObject *m = PyModule_Create(&moduledef);
 #else
-  PyObject* m = Py_InitModule("_pycld2", CLDMethods);
+#ifdef CLD2_FULL
+  PyObject* m = Py_InitModule("cld2full", CLDMethods);
+#else
+  PyObject* m = Py_InitModule("cld2", CLDMethods);
+#endif
 #endif
 
   if (m == NULL) {
@@ -343,7 +381,12 @@ init_pycld2()
 
   struct PYCLDState *st = GETSTATE(m);
 
-  st->error = PyErr_NewException((char *) "cld.error", NULL, NULL);
+#ifdef CLD2_FULL
+  st->error = PyErr_NewException((char *) "cld2full.error", NULL, NULL);
+#else
+  st->error = PyErr_NewException((char *) "cld2.error", NULL, NULL);
+#endif
+
   if (st->error == NULL) {
     Py_DECREF(m);
     INITERROR;
@@ -410,6 +453,7 @@ init_pycld2()
 
   upto = 0;
 
+#ifdef CLD2_FULL
   PyObject* detLangs = PyTuple_New(165);
 
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ABKHAZIAN"));
@@ -577,7 +621,108 @@ init_pycld2()
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("YORUBA"));
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ZHUANG"));
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ZULU"));
+#else
+  PyObject* detLangs = PyTuple_New(94);
   
+  // List originally sent by Dick Sites on 7/17/2013, then I
+  // added 6 new languages from the Jan 2014 release, and
+  // removed 5 and added 13 langs from the Oct 2014 release:
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("AFRIKAANS"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ALBANIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ARABIC"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ARMENIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("AZERBAIJANI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BASQUE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BELARUSIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BENGALI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BIHARI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BOSNIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BULGARIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("BURMESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("CATALAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("CEBUANO"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("CHEROKEE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("CROATIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("CZECH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("Chinese"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ChineseT"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("DANISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("DHIVEHI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("DUTCH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ENGLISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ESTONIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("FINNISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("FRENCH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("GALICIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("GANDA"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("GEORGIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("GERMAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("GREEK"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("GUJARATI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("HAITIAN_CREOLE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("HEBREW"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("HINDI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("HMONG"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("HUNGARIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ICELANDIC"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("INDONESIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("INUKTITUT"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("IRISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ITALIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("JAVANESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("Japanese"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("KANNADA"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("KAZAKH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("KHMER"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("KINYARWANDA"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("KURDISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("KYRGYZ"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("Korean"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("LAOTHIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("LATVIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("LIMBU"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("LITHUANIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("MACEDONIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("MALAGASY"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("MALAY"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("MALAYALAM"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("MALTESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("MARATHI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("NEPALI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("NORWEGIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("NYANJA"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ORIYA"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("PERSIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("POLISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("PORTUGUESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("PUNJABI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ROMANIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("RUSSIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SCOTS_GAELIC"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SERBIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SESOTHO"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SINHALESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SLOVAK"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SLOVENIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SPANISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SUNDANESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SWAHILI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SWEDISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("SYRIAC"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("TAGALOG"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("TAJIK"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("TAMIL"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("TELUGU"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("THAI"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("TURKISH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("UKRAINIAN"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("URDU"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("UZBEK"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("VIETNAMESE"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("WELSH"));
+  PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("YIDDISH"));
+#endif
+
   // Steals ref:
   PyModule_AddObject(m, "DETECTED_LANGUAGES", detLangs);
 
