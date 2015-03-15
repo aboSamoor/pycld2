@@ -346,33 +346,21 @@ static struct PyModuleDef moduledef = {
 
 //PyObject *
 PyMODINIT_FUNC
-#ifdef CLD2_FULL
-PyInit_cld2full(void)
-#else
-PyInit_cld2(void)
-#endif
+PyInit_pycld2(void)
 
 #else  // IS_PY3K
 
 #define INITERROR return
 
 PyMODINIT_FUNC
-#ifdef CLD2_FULL
-initcld2full()
-#else
-initcld2()
-#endif
+init_pycld2()
 #endif
 {
 
 #ifdef IS_PY3K
   PyObject *m = PyModule_Create(&moduledef);
 #else
-#ifdef CLD2_FULL
-  PyObject* m = Py_InitModule("cld2full", CLDMethods);
-#else
-  PyObject* m = Py_InitModule("cld2", CLDMethods);
-#endif
+  PyObject* m = Py_InitModule("_pycld2", CLDMethods);
 #endif
 
   if (m == NULL) {
@@ -381,11 +369,7 @@ initcld2()
 
   struct PYCLDState *st = GETSTATE(m);
 
-#ifdef CLD2_FULL
-  st->error = PyErr_NewException((char *) "cld2full.error", NULL, NULL);
-#else
-  st->error = PyErr_NewException((char *) "cld2.error", NULL, NULL);
-#endif
+  st->error = PyErr_NewException((char *) "pycld2.error", NULL, NULL);
 
   if (st->error == NULL) {
     Py_DECREF(m);
