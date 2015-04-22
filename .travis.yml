@@ -1,18 +1,21 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
-
-python:
-  - "3.4"
-  - "2.7"
-#  - "pypy"
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+before_install:
+    - sudo pip install codecov
 install:
-  - pip install -r requirements.txt
-  - python setup.py install
-
-# command to run tests, e.g. python setup.py test
+    - sudo apt-get install pypy
+    - pip install tox
+    - pip install cffi
+before_script:
+    - ulimit -c unlimited -S
 script:
-  - python setup.py build_ext --inplace
-  - nosetests
+    - python setup.py install
+    - tox
+after_success:
+    codecov
+env:
+  - TOXENV=py27
+  - TOXENV=py32
+  - TOXENV=py33
+  - TOXENV=py34
+  - TOXENV=pypy
+  - TOXENV=pypy3

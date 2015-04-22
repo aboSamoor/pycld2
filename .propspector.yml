@@ -1,0 +1,37 @@
+output-format: grouped
+
+strictness: veryhigh
+doc-warnings: true
+test-warnings: false
+max-line-length: 120
+
+ignore-paths:
+  - docs/
+
+frosted:
+  run: true
+
+pyroma:
+  run: true
+
+pylint:
+  disable:
+    - bad-builtin
+    - too-few-public-methods
+    - missing-docstring
+    - star-args
+
+pep8:
+  full: true
+  disable:
+    - E126
+
+pep257:
+  disable:
+    - D100
+    - D101
+    - D102
+    - D103
+    - D205
+    - D400
+    - D401

@@ -14,27 +14,26 @@
 # limitations under the License.
 #
 
-from distutils.core import setup, Extension
-import distutils.core
-import platform
+from distutils.core import Command
+from setuptools import setup
+from setuptools.command.install import install
+from distutils.command.build import build
+
 import subprocess
 import sys
 import os
-import glob
-from os import path as p
 
-CLD2_PATH = 'cld2'
-BIND_PATH = 'bindings'
+__VERSION__ = '0.1.0'
 
-with open('README.rst') as readme_file:
-  readme = readme_file.read()
 
 # Test suite
-class cldtest(distutils.core.Command):
+class cldtest(Command):
     # user_options, initialize_options and finalize_options must be overriden.
     user_options = []
+
     def initialize_options(self):
         pass
+
     def finalize_options(self):
         pass
 
@@ -42,66 +41,69 @@ class cldtest(distutils.core.Command):
         errno = subprocess.call([sys.executable, 'tests/cld_test.py'])
         raise SystemExit(errno)
 
-src_files = (glob.glob(p.join(CLD2_PATH, 'internal', '*.cc')) +
-             [p.join(BIND_PATH, 'pycldmodule.cc'),
-              p.join(BIND_PATH, 'encodings.cc')])
+
+def get_ext_modules():
+    import cld2
+    return [cld2._full_ffi.verifier.get_extension(),
+            cld2._lite_ffi.verifier.get_extension()]
 
 
-# These files list  is taken from the cld2/internal/compile_libs.sh
-# target libcld2_full.so, we will build the largest detector ever!
-cld_files = ['cldutil.cc', 'cldutil_shared.cc', 'compact_lang_det.cc',
-             'compact_lang_det_hint_code.cc', 'compact_lang_det_impl.cc',
-             'debug.cc', 'fixunicodevalue.cc', 'generated_entities.cc',
-             'generated_language.cc', 'generated_ulscript.cc',
-             'getonescriptspan.cc', 'lang_script.cc', 'offsetmap.cc',
-             'scoreonescriptspan.cc', 'tote.cc', 'utf8statetable.cc',
-             'cld_generated_cjk_uni_prop_80.cc', 'cld2_generated_cjk_compatible.cc',
-             'cld_generated_cjk_delta_bi_32.cc', 'generated_distinct_bi_0.cc',
-             'cld2_generated_quad0122.cc', 'cld2_generated_deltaocta0122.cc',
-             'cld2_generated_distinctocta0122.cc',
-             'cld_generated_score_quad_octa_0122.cc']
+def generate_luts():
+    from gen_enc import generate_encodings
+    own_dir = os.path.abspath(os.path.dirname(__file__))
+    output_file = os.path.join(own_dir, 'cld2', 'encoding_lut.cc')
+    enc_header = os.path.join(own_dir, 'cld2', 'public', 'encodings.h')
+    generate_encodings(enc_header, output_file)
 
-src_files = [p.join(CLD2_PATH, 'internal', f) for f in cld_files]
 
-src_files.extend([p.join(BIND_PATH, 'pycldmodule.cc'),
-                  p.join(BIND_PATH, 'encodings.cc')])
-include_dirs = [p.join(CLD2_PATH, 'internal'), p.join(CLD2_PATH, 'public')]
 
-module = Extension('pycld2._pycld2',
-                   language='c++',
-                   extra_compile_args=['-w', '-O2', '-m64', '-fPIC'],
-                   include_dirs=include_dirs,
-                   libraries = [],
-                   sources=src_files,
-                   )
+class CFFIBuild(build):
+    def finalize_options(self):
+        generate_luts()
+        self.distribution.ext_modules = get_ext_modules()
+        build.finalize_options(self)
 
-test_requirements = [
-    # TODO: put package test requirements here
-]
 
-setup(name='pycld2',
-      version='0.31',
-      author='Rami Al-Rfou',
-      author_email='rmyeid@gmail.com',
-      description='Python bindings around Google Chromium\'s embedded compact language detection library (CLD2)',
-      ext_modules = [module],
-      license = 'Apache2',
-      url = 'https://github.com/aboSamoor/pycld2',
-      classifiers = [
-        'License :: OSI Approved :: Apache Software License',
+class CFFIInstall(install):
+    def finalize_options(self):
+        generate_luts()
+        self.distribution.ext_modules = get_ext_modules()
+        install.finalize_options(self)
+
+
+setup(
+    name='chromium_compact_language_detector',
+    version=__VERSION__,
+    description='CFFI bindings around Google Chromium\'s embedded ' +
+    'compact language detection library (CLD2)',
+    long_description=open('README.rst', 'r').read(),
+    author='Michael McCandless & Greg Bowyer',
+    author_email='mail@mikemccandless.com & gbowyer@fastmail.co.uk',
+    packages=['cld2'],
+    tests_require=['tox'],
+    install_requires=['cffi==0.9.2'],
+    cmdclass={
+        'build': CFFIBuild,
+        'install': CFFIInstall,
+    },
+    setup_requires=['cffi==0.9.2'],
+    include_package_data=False,
+    zip_safe=False,
+    package_data={'cld2': ['*.py', '*.c', '*.h']},
+    keywords=['cld2', 'cffi'],
+    license='Apache2',
+    url='http://github.com/GregBowyer/cld2-cffi/',
+    classifiers=[
+        'License :: OSI Approved :: BSD License',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: C++',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Text Processing :: Linguistic'
-        ],
-      packages=["pycld2"],
-      test_suite='tests',
-      tests_require=test_requirements,
-      )
+    ],
+)
