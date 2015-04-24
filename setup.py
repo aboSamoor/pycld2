@@ -19,6 +19,8 @@ from setuptools import setup
 from setuptools.command.install import install
 from distutils.command.build import build
 
+from gen_enc import generate_encodings
+
 import subprocess
 import sys
 import os
@@ -49,12 +51,10 @@ def get_ext_modules():
 
 
 def generate_luts():
-    from gen_enc import generate_encodings
     own_dir = os.path.abspath(os.path.dirname(__file__))
     output_file = os.path.join(own_dir, 'cld2', 'encoding_lut.cc')
     enc_header = os.path.join(own_dir, 'cld2', 'public', 'encodings.h')
     generate_encodings(enc_header, output_file)
-
 
 
 class CFFIBuild(build):
