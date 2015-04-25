@@ -117,11 +117,13 @@ Pedi, Seselwa, Venda, Waray_Philippines.
 from cffi import FFI
 from os.path import abspath, dirname, relpath
 from os.path import join as joinpath
+import six
 
 
 _DEBUG = False
 _COMPILER_ARGS = ['-ggdb'] if _DEBUG else ['-O2']
 
+# pylint: disable=invalid-name
 _full_ffi = FFI()
 _lite_ffi = FFI()
 _pth = abspath(dirname(__file__))
@@ -187,8 +189,10 @@ _lite_cld2 = _lite_ffi.verify('#include <binding_decls.h>',
                               include_dirs=_include_dirs,
                               extra_compile_args=_COMPILER_ARGS)
 
+# pylint: disable=too-many-arguments,too-many-locals
 
-def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,
+
+def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
            hintLanguage=None, hintLanguageHTTPHeaders=None,
            hintEncoding=None, returnVectors=False,
            useFullLangTables=False,
@@ -335,11 +339,11 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,
                            ffi.string(results[i].lang_code),
                            results[i].percent,
                            results[i].normalized_score)
-                          for i in xrange(3))
+                          for i in six.moves.xrange(3))
 
         if returnVectors and cld_results.chunks is not ffi.NULL:
             vectors = []
-            for idx in xrange(cld_results.num_chunks):
+            for idx in six.moves.xrange(cld_results.num_chunks):
                 chunk = cld_results.chunks[idx]
                 vectors.append(
                     (chunk.offset,

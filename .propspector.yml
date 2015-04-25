@@ -35,3 +35,6 @@ pep257:
     - D205
     - D400
     - D401
+
+mccabe:
+  run: false
