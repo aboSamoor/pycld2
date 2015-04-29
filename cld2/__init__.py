@@ -319,6 +319,9 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
     if not utf8Bytes:
         utf8Bytes = ' '
 
+    if six.PY3:
+        utf8Bytes = utf8Bytes.encode('utf8')
+
     def __cstr_or_null(string):
         return string if string else ffi.NULL
 
