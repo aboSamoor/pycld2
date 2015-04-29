@@ -72,7 +72,7 @@ class CFFIInstall(install):
 
 
 setup(
-    name='chromium_compact_language_detector',
+    name='cld2-cffi',
     version=__VERSION__,
     description='CFFI bindings around Google Chromium\'s embedded ' +
     'compact language detection library (CLD2)',
