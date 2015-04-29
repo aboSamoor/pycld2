@@ -189,9 +189,35 @@ _lite_cld2 = _lite_ffi.verify('#include <binding_decls.h>',
                               include_dirs=_include_dirs,
                               extra_compile_args=_COMPILER_ARGS)
 
+
+def __establish_languages(ffi, cld):
+    to_ret = []
+    _lingus = cld.cld_languages()
+    _codes = cld.cld_langcodes()
+
+    for i in six.moves.xrange(cld.cld_num_languages()):
+        lingus = ffi.string(_lingus[i])
+        code = ffi.string(_codes[i])
+        if lingus and not (lingus.isdigit() or lingus == 'Unknown'):
+            to_ret.append((lingus, code))
+
+    return tuple(sorted(to_ret, key=lambda x: x[0]))
+
+
+def __establish_encodings(ffi, cld):
+    to_ret = []
+    _encodings = cld.cld_supported_encodings()
+    for i in six.moves.xrange(cld.cld_num_encodings()):
+        encoding = ffi.string(_encodings[i])
+        if encoding and encoding != 'UNKNOWN_ENCODING':
+            to_ret.append(encoding)
+    return tuple(sorted(to_ret))
+
+
+LANGUAGES = __establish_languages(_full_ffi, _full_cld2)
+ENCODINGS = __establish_encodings(_full_ffi, _full_cld2)
+
 # pylint: disable=too-many-arguments,too-many-locals
-
-
 def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
            hintLanguage=None, hintLanguageHTTPHeaders=None,
            hintEncoding=None, returnVectors=False,
@@ -309,8 +335,8 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
 
         ret_code = cld2.cld_detect(utf8Bytes, len(utf8Bytes),  # noqa
                                    cld_results, hint_content_lang_box,
-                                   hint_lang_box, hint_encoding_box,
-                                   hint_tld_box, isPlainText,
+                                   hint_tld_box, hint_lang_box,
+                                   hint_encoding_box, isPlainText,
                                    returnVectors, bestEffort,
                                    debugScoreAsQuads, debugHTML,
                                    debugCR, debugVerbose,

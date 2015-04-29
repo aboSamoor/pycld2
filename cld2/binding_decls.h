@@ -24,6 +24,18 @@ typedef struct {
     int valid_prefix_bytes;
 } cld_results_t;
 
+typedef struct {
+    char *lang_name;
+    char *lang_code;
+} cld_language_details_t;
+
+int cld_num_languages();
+const char** cld_languages();
+int cld_num_langcodes();
+const char** cld_langcodes();
+int cld_num_encodings();
+const char** cld_supported_encodings();
+
 cld_results_t* cld_create_results();
 
 void cld_destroy_results(cld_results_t *results);

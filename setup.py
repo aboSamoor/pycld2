@@ -79,7 +79,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     author='Michael McCandless & Greg Bowyer',
     author_email='mail@mikemccandless.com & gbowyer@fastmail.co.uk',
-    packages=['cld2'],
+    packages=['cld2', 'cld2full'],
     tests_require=['tox'],
     install_requires=['cffi==0.9.2', 'six'],
     cmdclass={
@@ -89,7 +89,10 @@ setup(
     setup_requires=['cffi==0.9.2', 'six'],
     include_package_data=False,
     zip_safe=False,
-    package_data={'cld2': ['*.py', '*.c', '*.h']},
+    package_data={
+        'cld2': ['*.py', '*.c', '*.h'],
+        'cld2full': ['*.py'],
+    },
     keywords=['cld2', 'cffi'],
     license='Apache2',
     url='http://github.com/GregBowyer/cld2-cffi/',

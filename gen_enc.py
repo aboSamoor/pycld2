@@ -45,6 +45,10 @@ struct cld_encoding {
   CLD2::Encoding encoding;
 };
 
+extern const char* const cld_encodings[] = {
+%(names)s
+};
+
 extern const cld_encoding cld_encoding_info[] = {
 %(encodings)s
 };
@@ -75,6 +79,7 @@ def generate_encodings(encoding_header, output_file):
     with open(encoding_header) as encodings:
         regex = re.compile(r'\s*(.*?)\s+=\s*(\d+),')
         lines = []
+        names = []
         for line in encodings:
             line = line.strip()
             match = regex.match(line)
@@ -83,8 +88,12 @@ def generate_encodings(encoding_header, output_file):
                 if name == 'NUM_ENCODINGS':
                     continue
                 lines.append('  {"%s", CLD2::%s},' % (name, name))
+                names.append('"%s",' % name)
 
-        enc_table = _TMPL % {'encodings': '\n'.join(lines)}
+        enc_table = _TMPL % {
+            'encodings': '\n'.join(lines),
+            'names': '\n'.join(names),
+        }
 
         with open(output_file, 'w') as output:
             output.write(enc_table)

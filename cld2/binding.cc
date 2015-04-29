@@ -3,12 +3,46 @@
 
 #include "compact_lang_det.h"
 #include "encodings.h"
+#include "generated_language.h"
 #include "binding.h"
 
 // Fwd declaration from encoding_lut.cc
 CLD2::Encoding EncodingFromName(const char *name);
+extern const char* const cld_encodings[];
+
+// Fwd declaration from generated_language.cc
+namespace CLD2 {
+    extern const char* const kLanguageToName[];
+    extern const int kLanguageToNameSize;
+    extern const int kLanguageToCodeSize;
+    extern const char* const kLanguageToCode[];
+}
 
 extern "C" {
+
+    int cld_num_languages() {
+        return CLD2::kLanguageToNameSize;
+    }
+
+    const char** cld_languages() {
+        return (const char**) &CLD2::kLanguageToName;
+    }
+
+    int cld_num_langcodes() {
+        return CLD2::kLanguageToCodeSize;
+    } 
+
+    const char** cld_langcodes() {
+        return (const char**) &CLD2::kLanguageToCode;
+    }
+
+    int cld_num_encodings() {
+        return CLD2::NUM_ENCODINGS;
+    }
+
+    const char** cld_supported_encodings() {
+        return (const char**) &cld_encodings;
+    }
 
     cld_results_t *cld_create_results() {
         cld_results_t *res = (cld_results_t*) calloc(1, sizeof(cld_results_t));
