@@ -364,8 +364,8 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
             raise ValueError("Unknown Error !")
 
         results = cld_results.results
-        languages = tuple((ffi.string(results[i].lang_name),
-                           ffi.string(results[i].lang_code),
+        languages = tuple((ffi.string(results[i].lang_name).decode('utf8'),
+                           ffi.string(results[i].lang_code).decode('utf8'),
                            results[i].percent,
                            results[i].normalized_score)
                           for i in six.moves.xrange(3))
@@ -377,8 +377,8 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
                 vectors.append(
                     (chunk.offset,
                      chunk.bytes,
-                     ffi.string(chunk.lang_name),
-                     ffi.string(chunk.lang_code))
+                     ffi.string(chunk.lang_name).decode('utf8'),
+                     ffi.string(chunk.lang_code).decode('utf8'))
                 )
             return (
                 bool(cld_results.reliable),
