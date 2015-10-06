@@ -116,6 +116,7 @@ Pedi, Seselwa, Venda, Waray_Philippines.
 
 from os.path import abspath, dirname, relpath
 from os.path import join as joinpath
+from collections import namedtuple
 from cffi import FFI
 import six
 
@@ -217,6 +218,16 @@ def __establish_encodings(ffi, cld):
 LANGUAGES = __establish_languages(_full_ffi, _full_cld2)
 ENCODINGS = __establish_encodings(_full_ffi, _full_cld2)
 
+Detections = namedtuple('Detections',
+                        ['is_reliable', 'bytes_found', 'details'])
+VectorDetections = namedtuple('DetailedDetections',
+                              ['is_reliable', 'bytes_found', 'details',
+                               'vectors'])
+Detection = namedtuple('Detection',
+                       ['language_name', 'language_code', 'percent', 'score'])
+Vector = namedtuple('Vector',
+                    ['offset', 'num_bytes', 'language_name', 'language_code'])
+
 # pylint: disable=too-many-arguments,too-many-locals
 def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
            hintLanguage=None, hintLanguageHTTPHeaders=None,
@@ -296,9 +307,10 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
 
     Returns
     -------
-    `(isReliable, textBytesFound, details) when `returnVectors` is False
-    `(isReliable, textBytesFound, details, vectors` when `returnVectors` is
-    True
+    `Detections(is_reliable, bytes_found, details)
+    when `returnVectors` is False
+    `Detections(is_reliable, bytes_found, details, vectors`
+    when `returnVectors` is True
 
     isReliable : boolean
         is True if the detection is high confidence
@@ -306,11 +318,23 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
     textBytesFound : int
         is the total number of bytes of text detected
 
-    details : tuple
-        is a tuple of up to three detected languages, where each is
-        tuple is `(languageName, languageCode, percent, score)`.  `Percent` is
-        what percentage of the original text was detected as this language
-        and `score` is the confidence score for that language.
+    details : tuple of Detection
+        A tuple of up to three detected languages, where each is a
+        namedtuple of `(language_name, language_code, percent, score)`.
+
+        `language_name` is the internal CLD2 name for the language.
+        `language_code` is a ISO 639-1 lanuguage code.
+        `percent` is what percentage of the original text was detected as.
+        `score` is the confidence score for that language.
+
+    vectors : tuple of Vector
+        A tuple of detected languages segments, where each is a
+        namedtuple of `(offset, num_bytes, language_name, language_code)`
+
+        `offset` is where in the text the vector starts from.
+        `num_bytes` is the number of bytes the vector extends to.
+        `language_name` is the internal CLD2 name for the language.
+        `language_code` is a ISO 639-1 lanuguage code.
     """
 
     cld2 = _full_cld2 if useFullLangTables else _lite_cld2
@@ -370,30 +394,31 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
             raise ValueError("Unknown Error !")
 
         results = cld_results.results
-        languages = tuple((ffi.string(results[i].lang_name).decode('utf8'),
-                           ffi.string(results[i].lang_code).decode('utf8'),
-                           results[i].percent,
-                           results[i].normalized_score)
-                          for i in six.moves.xrange(3))
+        languages = [Detection(ffi.string(results[i].lang_name).decode('utf8'),
+                               ffi.string(results[i].lang_code).decode('utf8'),
+                               results[i].percent,
+                               results[i].normalized_score)
+                     for i in six.moves.xrange(3)]
+        languages = tuple(languages)
 
         if returnVectors and cld_results.chunks is not ffi.NULL:
             vectors = []
             for idx in six.moves.xrange(cld_results.num_chunks):
                 chunk = cld_results.chunks[idx]
                 vectors.append(
-                    (chunk.offset,
-                     chunk.bytes,
-                     ffi.string(chunk.lang_name).decode('utf8'),
-                     ffi.string(chunk.lang_code).decode('utf8'))
+                    Vector(chunk.offset,
+                           chunk.bytes,
+                           ffi.string(chunk.lang_name).decode('utf8'),
+                           ffi.string(chunk.lang_code).decode('utf8'))
                 )
-            return (
+            return VectorDetections(
                 bool(cld_results.reliable),
                 int(cld_results.bytes_found),
                 languages,
                 tuple(vectors)
             )
         else:
-            return (
+            return Detections(
                 bool(cld_results.reliable),
                 int(cld_results.bytes_found),
                 languages,
