@@ -114,9 +114,9 @@ be well-shaken-down: Akan, Cebuano, Hmong, Igbo, Mauritian_Creole, Nyanja,
 Pedi, Seselwa, Venda, Waray_Philippines.
 """
 
-from cffi import FFI
 from os.path import abspath, dirname, relpath
 from os.path import join as joinpath
+from cffi import FFI
 import six
 
 
