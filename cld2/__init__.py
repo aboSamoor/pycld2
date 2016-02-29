@@ -198,7 +198,7 @@ def __establish_languages(ffi, cld):
     for i in six.moves.xrange(cld.cld_num_languages()):
         lingus = ffi.string(_lingus[i])
         code = ffi.string(_codes[i])
-        if lingus and not (lingus.isdigit() or lingus == 'Unknown'):
+        if lingus and not (lingus.isdigit() or lingus == b'Unknown'):
             to_ret.append((lingus, code))
 
     return tuple(sorted(to_ret, key=lambda x: x[0]))
@@ -209,7 +209,7 @@ def __establish_encodings(ffi, cld):
     _encodings = cld.cld_supported_encodings()
     for i in six.moves.xrange(cld.cld_num_encodings()):
         encoding = ffi.string(_encodings[i])
-        if encoding and encoding != 'UNKNOWN_ENCODING':
+        if encoding and encoding != b'UNKNOWN_ENCODING':
             to_ret.append(encoding)
     return tuple(sorted(to_ret))
 
@@ -319,11 +319,17 @@ def detect(utf8Bytes, isPlainText=True, hintTopLevelDomain=None,  # noqa
     if not utf8Bytes:
         utf8Bytes = ' '
 
-    if six.PY3:
+    if six.PY3 and isinstance(utf8Bytes, str):
         utf8Bytes = utf8Bytes.encode('utf8')
 
     def __cstr_or_null(string):
-        return string if string else ffi.NULL
+        if not string:
+            return ffi.NULL
+        else:
+            if six.PY3 and isinstance(string, str):
+                return string.encode('ascii')
+            else:
+                return string
 
     cld_results = cld2.cld_create_results()  # noqa
 
