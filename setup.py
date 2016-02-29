@@ -160,12 +160,12 @@ setup(
     author_email='mail@mikemccandless.com & gbowyer@fastmail.co.uk',
     packages=['cld2', 'cld2full'],
     tests_require=['tox'],
-    install_requires=['cffi==0.9.2', 'six'],
+    install_requires=['cffi', 'six'],
     cmdclass={
         'build': CFFIBuild,
         'install': CFFIInstall,
     },
-    setup_requires=['cffi==0.9.2', 'six'],
+    setup_requires=['cffi', 'six'],
     include_package_data=False,
     zip_safe=False,
     package_data={
