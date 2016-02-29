@@ -52,16 +52,15 @@ Usage
 
     import cld2
 
-    detectedLangCode, isReliable, textBytesFound, details = \
-        cld2.detect("This is my sample text", pickSummaryLanguage=True, removeWeakMatches=False)
-    print '  reliable: %s' % (isReliable != 0)
-    print '  textBytes: %s' % textBytesFound
-    print '  details: %s' % str(details)
+    isReliable, textBytesFound, details = cld2.detect("Ceci est mon texte sample")
+    print('  reliable: %s' % (isReliable != 0))
+    print('  textBytes: %s' % textBytesFound)
+    print('  details: %s' % str(details))
 
-    # The output look like so:
+    # The output looks like so:
     #  reliable: True
-    #  textBytes: 25
-    #  details: [('ENGLISH', 'en', 64, 20.25931928687196), ('FRENCH', 'fr', 36, 8.221993833504625)]
+    #  textBytes: 27
+    #  details: (('FRENCH', 'fr', 96, 1339.0), ('Unknown', 'un', 0, 0.0), ('Unknown', 'un', 0, 0.0))
 
 =============
 Documentation
