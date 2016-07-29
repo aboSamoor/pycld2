@@ -41,12 +41,13 @@ _ENC_TMPL = '''
 // limitations under the License.
 //
 
-// Machine generated. Edit gen_enc.py to alter
+// Machine generated. Edit setup.py to alter
 
 #include <cstdio>
 #include <cstring>
 #include "compact_lang_det.h"
 #include "encodings.h"
+#include "shims.h"
 
 struct cld_encoding {
   const char *name;
@@ -170,6 +171,7 @@ setup(
     zip_safe=False,
     package_data={
         'cld2': ['*.py', '*.c', '*.h'],
+        'msinttypes': ['*.h'],
         'cld2full': ['*.py'],
     },
     keywords=['cld2', 'cffi'],

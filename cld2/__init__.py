@@ -118,6 +118,7 @@ from os.path import abspath, dirname, relpath
 from os.path import join as joinpath
 from collections import namedtuple
 from cffi import FFI
+import platform
 import six
 
 
@@ -179,6 +180,9 @@ _lite_sources = _core_sources + _lite_table
 
 _include_dirs = [relpath(inc) for inc in [
     "cld2/public", "cld2/internal", "cld2"]]
+
+if platform.system() == 'Windows':
+    _include_dirs.append(relpath("msinttypes"))
 
 _full_cld2 = _full_ffi.verify('#include <binding_decls.h>',
                               sources=_full_sources,
