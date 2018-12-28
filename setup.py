@@ -69,7 +69,7 @@ include_dirs = [p.join(CLD2_PATH, 'internal'), p.join(CLD2_PATH, 'public')]
 
 module = Extension('pycld2._pycld2',
                    language='c++',
-                   extra_compile_args=['-w', '-O2', '-m64', '-fPIC'],
+                   extra_compile_args=['-w', '-O2', '-fPIC'],
                    include_dirs=include_dirs,
                    libraries = [],
                    sources=src_files,
