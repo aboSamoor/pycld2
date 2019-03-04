@@ -13,7 +13,8 @@
 //
 
 #include <stdio.h>
-#include <strings.h>
+#include <ctype.h>
+#include <string.h>
 #include "compact_lang_det.h"
 #include "encodings.h"
 
@@ -99,6 +100,18 @@ extern const cld_encoding cld_encoding_info[] = {
   {"KDDI_ISO_2022_JP", CLD2::KDDI_ISO_2022_JP},
   {"SOFTBANK_ISO_2022_JP", CLD2::SOFTBANK_ISO_2022_JP},
 };
+
+int strcasecmp(const char* s1, const char* s2)
+{
+    for (;;) {
+        int c1 = tolower( *((unsigned char*) s1++));
+        int c2 = tolower( *((unsigned char*) s2++));
+
+        if ((c1 != c2) || (c1 == '\0')) {
+            return( c1 - c2);
+        }
+    }
+}
 
 CLD2::Encoding EncodingFromName(const char *name) {
   for(int i=0;i<CLD2::NUM_ENCODINGS;i++) {

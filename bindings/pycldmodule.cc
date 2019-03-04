@@ -13,7 +13,7 @@
 //
 
 #include <Python.h>
-#include <strings.h>
+#include <string.h>
 
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
