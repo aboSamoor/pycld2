@@ -50,6 +50,7 @@ Pour d’autres usages du nom France, Pour une aide rapide et effective, veuille
 dans le menu ci-dessus.
 Motoring events began soon after the construction of the first successful gasoline-fueled automobiles.
 The quick brown fox jumped over the lazy dog."""
+
 isReliable, textBytesFound, details, vectors = cld2.detect(
     fr_en_Latn, returnVectors=True
 )
