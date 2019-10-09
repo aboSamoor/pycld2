@@ -94,7 +94,7 @@ if __name__ == "__main__":
         maintainer="Brad Solomon",
         maintainer_email="brad.solomon.1124@gmail.com",
         description="Python bindings around Google Chromium's embedded compact language detection library (CLD2)",
-        long_description=open(path.join(HERE, "README.rst")).read(),
+        long_description=open(path.join(HERE, "README.md")).read(),
         long_description_content_type="text/markdown",
         license="Apache2",
         url="https://github.com/aboSamoor/pycld2",
