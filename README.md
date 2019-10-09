@@ -103,3 +103,7 @@ This package exports these global constants:
 | `pycld2.LANGUAGES` | list of languages and their codes (if you provide `hintLanguageCode`, it must be one of the codes from these codes). |
 | `pycld2.EXTERNAL_LANGUAGES` | list of external languages and their codes. |
 | `pycld2.DETECTED_LANGUAGES` | list of all detectable languages. |
+
+## What About CLD3?
+
+Python bindings for [CLD3](https://github.com/google/cld3/) are available as a separate project, [`pycld3`](https://github.com/bsolomon1124/pycld3).

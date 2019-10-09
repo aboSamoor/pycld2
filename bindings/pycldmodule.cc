@@ -29,7 +29,7 @@
 
 // The version of the Python bindings, which gets set to _pycld2.__version__.
 // For a version of CLD2 itself, see CLD2::DetectLanguageVersion().
-#define PYCLD2_VERSION "0.40.dev1"
+#define PYCLD2_VERSION "0.40"
 
 // Implementation is in ./encodings.cc
 CLD2::Encoding EncodingFromName(const char *name);
