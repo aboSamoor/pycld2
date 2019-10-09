@@ -13,7 +13,7 @@
 //
 
 #include <stdio.h>
-#include <string.h> // Windows compat (vs. strings.h)
+#include <string.h>  // Windows compat (vs. strings.h)
 #include <ctype.h>
 
 #include "compact_lang_det.h"
@@ -102,21 +102,22 @@ extern const cld_encoding cld_encoding_info[] = {
   {"SOFTBANK_ISO_2022_JP", CLD2::SOFTBANK_ISO_2022_JP},
 };
 
-// Re-written from strings.h
-inline int strcasecmp(const char *s1, const char *s2)
+// Re-written (simplified) from BSD strings.h
+inline int
+strcasecmp(const char *s1, const char *s2)
 {
-   for (;;) {
-       int c1 = tolower( *((unsigned char *) s1++));
-       int c2 = tolower( *((unsigned char *) s2++));
-       if ((c1 != c2) || (c1 == '\0')) {
-           return c1 - c2;
-       }
-   }
-   return 0;
+  for (;;) {
+    int c1 = tolower(*((unsigned char *) s1++));
+    int c2 = tolower(*((unsigned char *) s2++));
+    if ((c1 != c2) || (c1 == '\0')) {
+      return c1 - c2;
+    }
+  }
+  return 0;
 }
 
 CLD2::Encoding EncodingFromName(const char *name) {
-  for(int i=0;i<CLD2::NUM_ENCODINGS;i++) {
+  for (int i = 0; i < CLD2::NUM_ENCODINGS; i++) {
     if (!strcasecmp(cld_encoding_info[i].name, name)) {
       return cld_encoding_info[i].encoding;
     }
