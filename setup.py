@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,7 +67,7 @@ include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")
 
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
-    # any packages — ie. not a filename or pathname, but Python dotted
+    # any packages - ie. not a filename or pathname, but Python dotted
     # name.
     "pycld2._pycld2",
     sources=src_files,
