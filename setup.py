@@ -14,12 +14,7 @@
 # limitations under the License.
 #
 
-import glob
-import os
-import platform
 import re
-import subprocess
-import sys
 from os import path
 
 import setuptools
