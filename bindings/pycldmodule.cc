@@ -12,20 +12,26 @@
 // limitations under the License.
 //
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <strings.h>
+#include <string.h> // Windows compat (vs. strings.h)
 
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
 #endif
 
+// From ../cld2/public/
 #include "compact_lang_det.h"
 #include "encodings.h"
 
-// From ../../internal:
+// From ../cld2/internal/
 #include "lang_script.h"
 
-// impl is in ./encodings.cc:
+// The version of the Python bindings, which gets set to _pycld2.__version__.
+// For a version of CLD2 itself, see CLD2::DetectLanguageVersion().
+#define PYCLD2_VERSION "0.40.dev1"
+
+// Implementation is in ./encodings.cc
 CLD2::Encoding EncodingFromName(const char *name);
 
 struct cld_encoding {
@@ -51,8 +57,9 @@ static struct PYCLDState _state;
 #endif
 
 static PyObject *
-detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
-  char *bytes;
+detect(PyObject *self, PyObject *args, PyObject *kwArgs)
+{
+  const char *bytes;
   int numBytes;
 
   CLD2::CLDHints cldHints;
@@ -60,8 +67,8 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   cldHints.content_language_hint = 0;
 
   int isPlainText = 0;
-  const char* hintLanguage = 0;
-  const char* hintEncoding = 0;
+  const char *hintLanguage = 0;
+  const char *hintEncoding = 0;
 
   int returnVectors = 0;
 
@@ -73,48 +80,19 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   int flagEcho = 0;
   int flagBestEffort = 0;
 
-  static const char *kwList[] = {"utf8Bytes",
-                                 "isPlainText",
-                                 "hintTopLevelDomain",       // "id" boosts Indonesian
-                                 "hintLanguage",             // ITALIAN or it boosts it
-                                 "hintLanguageHTTPHeaders",  // "mi,en" boosts Maori and English
-                                 "hintEncoding",             // SJS boosts Japanese
-                                 "returnVectors",            // True if you want byte-ranges of each matched language (approx 2X perf hit)
+  static const char *kwList[] = {
+    "utf8Bytes", "isPlainText", "hintTopLevelDomain", "hintLanguage",
+    "hintLanguageHTTPHeaders", "hintEncoding", "returnVectors",
+    "debugScoreAsQuads", "debugHTML", "debugCR", "debugVerbose",
+    "debugQuiet", "debugEcho", "bestEffort", NULL
+  };
 
-                                 /* Normally, several languages are detected solely by their Unicode script.
-                                    Combined with appropritate lookup tables, this flag forces them instead
-                                    to be detected via quadgrams. This can be a useful refinement when looking
-                                    for meaningful text in these languages, instead of just character sets.
-                                    The default tables do not support this use. */
-                                 "debugScoreAsQuads",
-
-                                 /* For each detection call, write an HTML file to stderr, showing the text
-                                    chunks and their detected languages. */
-                                 "debugHTML",
-
-                                 /* In that HTML file, force a new line for each chunk. */
-                                 "debugCR",
-
-                                 /* In that HTML file, show every lookup entry. */
-                                 "debugVerbose",
-
-                                 /* In that HTML file, suppress most of the output detail. */
-                                 "debugQuiet",
-
-                                 /* Echo every input buffer to stderr. */
-                                 "debugEcho",
-
-                                 /* If true, allow low-quality results for short text,
-                                    rather than forcing the result to UNKNOWN_LANGUAGE. This may be of use for
-                                    those desiring approximate results on short input text, but there is no claim
-                                    that these results ave very good. make a guess at the language even if quality is low (text is short) */
-                                 "bestEffort",
-
-                                 NULL};
-
-  if (!PyArg_ParseTupleAndKeywords(args, kwArgs, "s#|izzzziiiiiiii",
+  if (!PyArg_ParseTupleAndKeywords(args,
+                                   kwArgs,
+                                   "s#|izzzziiiiiiii",
                                    (char **) kwList,
-                                   &bytes, &numBytes,
+                                   &bytes,
+                                   &numBytes,
                                    &isPlainText,
                                    &cldHints.tld_hint,
                                    &hintLanguage,
@@ -128,7 +106,7 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
                                    &flagQuiet,
                                    &flagEcho,
                                    &flagBestEffort)) {
-    return 0;
+    return NULL;
   }
 
   int flags = 0;
@@ -157,27 +135,31 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   PyObject *CLDError = GETSTATE(self)->error;
 
   if (hintLanguage == 0) {
-    // no hint
     cldHints.language_hint = CLD2::UNKNOWN_LANGUAGE;
-  } else {
+  }
+  else {
     cldHints.language_hint = CLD2::GetLanguageFromName(hintLanguage);
     if (cldHints.language_hint == CLD2::UNKNOWN_LANGUAGE) {
-      PyErr_Format(CLDError, "Unrecognized language hint name (got '%s'); see cld.LANGUAGES for recognized language names (note that currently external languages cannot be hinted)", hintLanguage);
-      return 0;
+      PyErr_Format(CLDError,
+                      "Unrecognized language hint '%s' not in cld.LANGUAGES",
+                      hintLanguage);
+      return NULL;
     }
   }
 
   if (hintEncoding == 0) {
-    // no hint
     cldHints.encoding_hint = CLD2::UNKNOWN_ENCODING;
-  } else {
+  }
+  else {
     cldHints.encoding_hint = EncodingFromName(hintEncoding);
     if (cldHints.encoding_hint == CLD2::UNKNOWN_ENCODING) {
-      PyErr_Format(CLDError, "Unrecognized encoding hint code (got '%s'); see cld.ENCODINGS for recognized encodings", hintEncoding);
-      return 0;
+      PyErr_Format(CLDError,
+                   "Unrecognized encoding hint '%s' not in cld.ENCODINGS",
+                   hintEncoding);
+      return NULL;
     }
   }
-    
+
   bool isReliable;
   CLD2::Language language3[3];
   int percent3[3];
@@ -187,7 +169,8 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   CLD2::ResultChunkVector resultChunkVector;
 
   Py_BEGIN_ALLOW_THREADS
-  CLD2::ExtDetectLanguageSummaryCheckUTF8(bytes, numBytes,
+  CLD2::ExtDetectLanguageSummaryCheckUTF8(bytes,
+                                          numBytes,
                                           isPlainText != 0,
                                           &cldHints,
                                           flags,
@@ -201,32 +184,39 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   Py_END_ALLOW_THREADS
 
   if (validPrefixBytes < numBytes) {
-    PyErr_Format(CLDError, "input contains invalid UTF-8 around byte %d (of %d)", validPrefixBytes, numBytes);
-    return 0;
+    PyErr_Format(CLDError,
+                 "input contains invalid UTF-8 around byte %d (of %d)",
+                 validPrefixBytes,
+                 numBytes);
+    return NULL;
   }
 
   PyObject *details = PyTuple_New(3);
-  for(int idx=0;idx<3;idx++) {
+  for (Py_ssize_t idx = 0; idx < 3; idx++) {
     CLD2::Language lang = language3[idx];
-    // Steals ref:
-    PyTuple_SET_ITEM(details, idx, Py_BuildValue("(ssif)",
-                                                 CLD2::LanguageName(lang),
-                                                 CLD2::LanguageCode(lang),
-                                                 percent3[idx],
-                                                 normalized_score3[idx]));
+    // Steals ref
+    PyTuple_SET_ITEM(details,
+                     idx,
+                     Py_BuildValue("(ssif)",
+                                   CLD2::LanguageName(lang),
+                                   CLD2::LanguageCode(lang),
+                                   percent3[idx],
+                                   normalized_score3[idx]));
   }
 
   PyObject *result;
 
   if (returnVectors != 0) {
     PyObject *resultChunks = PyTuple_New(resultChunkVector.size());
-    for(unsigned int i=0;i<resultChunkVector.size();i++) {
+    for (Py_ssize_t i = 0; i < resultChunkVector.size(); i++) {
       CLD2::ResultChunk chunk = resultChunkVector.at(i);
       CLD2::Language lang = static_cast<CLD2::Language>(chunk.lang1);
-      // Steals ref:
-      PyTuple_SET_ITEM(resultChunks, i, 
+      // Steals ref
+      PyTuple_SET_ITEM(resultChunks,
+                       i,
                        Py_BuildValue("(iiss)",
-                                     chunk.offset, chunk.bytes,
+                                     chunk.offset,
+                                     chunk.bytes,
                                      CLD2::LanguageName(lang),
                                      CLD2::LanguageCode(lang)));
     }
@@ -235,7 +225,8 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
                            textBytesFound,
                            details,
                            resultChunks);
-  } else {
+  }
+  else {
     result = Py_BuildValue("(OiO)",
                            isReliable ? Py_True : Py_False,
                            textBytesFound,
@@ -246,76 +237,103 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs) {
   return result;
 }
 
-const char *DOC =
-  "Detect language(s) from a UTF8 string.\n\n"
-
-  "Arguments:\n\n"
-  "  utf8Bytes: The text to detect, encoded as UTF-8 bytes (required).  If\n"
-  "             this is not valid UTF-8, then an cld2.error is raised.\n\n"
-
-  "  isPlainText: If False, then the input is HTML and CLD will skip HTML tags,\n"
-  "               expand HTML entities, detect HTML <lang ...> tags, etc.\n\n"
-
-  "  hintTopLevelDomain: E.g., 'id' boosts Indonesian\n\n"
-
-  "  hintLanguage: E.g., 'ITALIAN' or 'it' boosts Italian; see cld.LANGUAGES\n"
-  "                for all known language\n\n"
-
-  "  hintLanguageHTTPHeaders: E.g., 'mi,en' boosts Maori and English\n\n"
-
-  "  hintEncoding: E.g, 'SJS' boosts Japanese; see cld.ENCODINGS for all known\n"
-  "                encodings\n\n"
-
-  "  returnVectors: If True then the vectors indicating which language was\n"
-  "                 detected in which byte range are returned in addition to\n"
-  "                 details.  The vectors are a sequence of (bytesOffset,\n"
-  "                 bytesLength, languageName, languageCode), in order.\n"
-  "                 bytesOffset is the start of the vector, bytesLength\n"
-  "                 is the length of the vector.  Note that there is some\n"
-  "                 added CPU cost if this is True.\n\n"
-
-  "  debugScoreAsQuads: Normally, several languages are detected solely by their\n"
-  "                     Unicode script.  Combined with appropritate lookup tables,\n"
-  "                     this flag forces them instead to be detected via quadgrams.\n"
-  "                     This can be a useful refinement when looking for meaningful\n"
-  "                     text in these languages, instead of just character sets.\n"
-  "                     The default tables do not support this use.\n\n"
-
-  "  debugHTML: For each detection call, write an HTML file to stderr, showing the\n"
-  "             text chunks and their detected languages.  See\n"
-  "             docs/InterpretingCLD2UnitTestOutput.pdf to interpret this output.\n\n"
-
-  "  bestEffort: If True then allow low-quality results for short text,\n"
-  "              rather than forcing the result to UNKNOWN_LANGUAGE.  This\n"
-  "              may be of use for those desiring approximate results on\n"
-  "              short input text, but there is no claim that these result\n"
-  "              are very good.\n\n"
-
-  "  debugCR: In that HTML file, force a new line for each chunk.\n\n"
-
-  "  debugVerbose: In that HTML file, show every lookup entry.\n\n"
-
-  "  debugQuiet: In that HTML file, suppress most of the output detail.\n\n"
-
-  "  debugEcho: Echo every input buffer to stderr.\n\n\n"
-
-  "Returns:\n\n"
-  "  isReliable, textBytesFound, details when returnVectors is False\n"
-  "  isReliable, textBytesFound, details, vectors when returnVectors is True\n\n"
-
-  "  isReliable (boolean) is True if the detection is high confidence\n\n"
-
-  "  textBytesFound (int) is the total number of bytes of text detected\n\n"
-
-  "  details is a tuple of up to three detected languages, where each is\n"
-  "  tuple is (languageName, languageCode, percent, score).  percent is\n"
-  "  what percentage of the original text was detected as this language\n"
-  "  and score is the confidence score for that language."
-  ;
+PyDoc_STRVAR(detect_doc,
+"Detect language from str or UTF-8 encoded bytes.\n\
+\n\
+Arguments:\n\
+\n\
+    utf8Bytes: str or UTF-8 encoded bytes\n\
+        The text to detect.  If this is not valid UTF-8, then a cld2.error is\n\
+        raised.\n\
+\n\
+    isPlainText: bool, default False\n\
+        If False, then the input is HTML and CLD will skip HTML tags,\n\
+        expand HTML entities, detect HTML <lang ...> tags, etc.\n\
+\n\
+    hintTopLevelDomain: str\n\
+        E.g., 'id' boosts Indonesian.\n\
+\n\
+    hintLanguage: str\n\
+        E.g., 'ITALIAN' or 'it' boosts Italian; see cld.LANGUAGES for all\n\
+        known languages.\n\
+\n\
+    hintLanguageHTTPHeaders: str\n\
+        E.g., 'mi,en' boosts Maori and English.\n\
+\n\
+    hintEncoding: str\n\
+        E.g, 'SJS' boosts Japanese; see cld.ENCODINGS for all known\n\
+        encodings.\n\
+\n\
+    returnVectors:  bool, default False\n\
+        If True, then the vectors indicating which language was detected in\n\
+        which byte range are returned in addition to details.  The vectors are\n\
+        a sequence of (bytesOffset, bytesLength, languageName, languageCode),\n\
+        in order. bytesOffset is the start of the vector, bytesLength is the\n\
+        length of the vector.  Note that there is some added CPU cost if this\n\
+        is True.  (Approx. 2x performance hit.)\n\
+\n\
+    debugScoreAsQuads: bool, default False\n\
+        Normally, several languages are detected solely by their Unicode\n\
+        script.  Combined with appropritate lookup tables, this flag forces\n\
+        them instead to be detected via quadgrams. This can be a useful\n\
+        refinement when looking for meaningful text in these languages,\n\
+        instead of just character sets. The default tables do not support\n\
+        this use.\n\
+\n\
+    debugHTML: bool, default False\n\
+        For each detection call, write an HTML file to stderr, showing the\n\
+        text chunks and their detected languages.\n\
+        See docs/InterpretingCLD2UnitTestOutput.pdf to interpret this output.\n\
+\n\
+    debugCR: bool, default False\n\
+        In that HTML file, force a new line for each chunk.\n\
+\n\
+    debugVerbose: bool, default False\n\
+        In that HTML file, show every lookup entry.\n\
+\n\
+    debugQuiet: bool, default False\n\
+        In that HTML file, suppress most of the output detail.\n\
+\n\
+    debugEcho: bool, default False\n\
+        Echo every input buffer to stderr.\n\
+\n\
+    bestEffort: bool, default False\n\
+        If True, then allow low-quality results for short text, rather than\n\
+        forcing the result to UNKNOWN_LANGUAGE.  This may be of use for\n\
+        those desiring approximate results on short input text, but there\n\
+        is no claim that these result are very good.\n\
+\n\
+  Returns: tuple\n\
+\n\
+    If returnVectors is False:\n\
+\n\
+        (isReliable, textBytesFound, details)\n\
+\n\
+    If returnVectors is True:\n\
+\n\
+        (isReliable, textBytesFound, details, vectors)\n\
+\n\
+    Where:\n\
+\n\
+    isReliable: bool\n\
+        True if the detection is high confidence.\n\
+\n\
+    textBytesFound: int\n\
+        Total number of bytes of text detected.\n\
+\n\
+    details: tuple\n\
+        Tuple of up to three detected languages, where each is\n\
+        tuple is (languageName, languageCode, percent, score).  percent is\n\
+        what percentage of the original text was detected as this language\n\
+        and score is the confidence score for that language.\n\
+\n\
+    vectors: tuple\n\
+        Vectors indicating which language was detected in which byte range.\n\
+");
 
 static PyMethodDef CLDMethods[] = {
-  {"detect",  (PyCFunction) detect, METH_VARARGS | METH_KEYWORDS, DOC},
-  {0, 0}        /* Sentinel */
+  {"detect", (PyCFunction)detect, METH_VARARGS|METH_KEYWORDS, detect_doc},
+  {NULL, NULL, 0, NULL}  // Sentinel
 };
 
 #ifdef IS_PY3K
@@ -331,20 +349,23 @@ static int cld_clear(PyObject *m) {
 }
 
 static struct PyModuleDef moduledef = {
-  PyModuleDef_HEAD_INIT,
-  "cld",
-  NULL,
-  sizeof(struct PYCLDState),
-  CLDMethods,
-  NULL,
-  cld_traverse,
-  cld_clear,
-  NULL
+  PyModuleDef_HEAD_INIT,                    // m_base
+  "cld",                                    // m_name
+  NULL,                                     // m_doc
+  sizeof(struct PYCLDState),                // m_size
+  CLDMethods,                               // m_methods
+  NULL,                                     // m_slots
+  cld_traverse,                             // m_traverse
+  cld_clear,                                // m_clear
+  NULL                                      // m_free
 };
 
 #define INITERROR return NULL
 
-//PyObject *
+// In Python 3, initialization function must be named PyInit_name(),
+// where 'name' is the name of the module, hence this module will be named.
+// stdlib does the same thing, such as PyInit__heapq for _heapq.
+// _pycld2.
 PyMODINIT_FUNC
 PyInit__pycld2(void)
 
@@ -356,7 +377,6 @@ PyMODINIT_FUNC
 init_pycld2()
 #endif
 {
-
 #ifdef IS_PY3K
   PyObject *m = PyModule_Create(&moduledef);
 #else
@@ -369,25 +389,27 @@ init_pycld2()
 
   struct PYCLDState *st = GETSTATE(m);
 
-  st->error = PyErr_NewException((char *) "pycld2.error", NULL, NULL);
-
+  // Python name for the exception is 'pycld2.error'
+  st->error = PyErr_NewException("pycld2.error", NULL, NULL);
   if (st->error == NULL) {
     Py_DECREF(m);
     INITERROR;
   }
 
-  // Set module-global ENCODINGS tuple:
-  PyObject* pyEncs = PyTuple_New(CLD2::NUM_ENCODINGS-1);
+  // Set module-global ENCODINGS tuple
+  PyObject* pyEncs = PyTuple_New(CLD2::NUM_ENCODINGS - 1);
   // Steals ref:
   PyModule_AddObject(m, "ENCODINGS", pyEncs);
   unsigned int upto = 0;
-  for(int encIDX=0;encIDX<CLD2::NUM_ENCODINGS;encIDX++) {
+  for (Py_ssize_t encIDX = 0; encIDX < CLD2::NUM_ENCODINGS; encIDX++) {
     if (static_cast<CLD2::Encoding>(encIDX) != CLD2::UNKNOWN_ENCODING) {
       if (upto == PyTuple_Size(pyEncs)) {
         PyErr_SetString(st->error, "failed to initialize cld.ENCODINGS");
         INITERROR;
       }
-      PyTuple_SET_ITEM(pyEncs, upto++, PyUnicode_FromString(cld_encoding_info[encIDX].name));
+      PyTuple_SET_ITEM(pyEncs,
+                       upto++,
+                       PyUnicode_FromString(cld_encoding_info[encIDX].name));
     }
   }
 
@@ -396,12 +418,12 @@ init_pycld2()
     INITERROR;
   }
 
-  // Set module-global LANGUAGES tuple:
-  PyObject* pyLangs = PyTuple_New(CLD2::kNameToLanguageSize-1);
+  // Set module-global LANGUAGES tuple
+  PyObject* pyLangs = PyTuple_New(CLD2::kNameToLanguageSize - 1);
   // Steals ref:
   PyModule_AddObject(m, "LANGUAGES", pyLangs);
   upto = 0;
-  for(int i=0;i<CLD2::kNameToLanguageSize;i++) {
+  for (Py_ssize_t i = 0; i < CLD2::kNameToLanguageSize; i++) {
     const char *name = CLD2::kNameToLanguage[i].s;
     if (strcmp(name, "Unknown")) {
       if (upto == PyTuple_Size(pyLangs)) {
@@ -413,6 +435,7 @@ init_pycld2()
         PyErr_SetString(st->error, "failed to initialize cld.LANGUAGES");
         INITERROR;
       }
+      // Steals ref
       PyTuple_SET_ITEM(pyLangs,
                        upto++,
                        Py_BuildValue("(zz)",
@@ -426,19 +449,24 @@ init_pycld2()
     INITERROR;
   }
 
-  // Steals ref:
+// VERSION is the C lib version, such as 'V2.0 - 20140204'
 #ifdef IS_PY3K
-  PyModule_AddObject(m, "VERSION", PyUnicode_FromString(CLD2::DetectLanguageVersion()));
+  // Steals ref
+  PyModule_AddObject(m,
+                     "VERSION",
+                     PyUnicode_FromString(CLD2::DetectLanguageVersion()));
 #else
-  PyModule_AddObject(m, "VERSION", PyString_FromString(CLD2::DetectLanguageVersion()));
+  // Steals ref
+  PyModule_AddObject(m,
+                     "VERSION",
+                     PyString_FromString(CLD2::DetectLanguageVersion()));
+
 #endif
+  PyModule_AddStringConstant(m, "__version__", PYCLD2_VERSION);
 
-  // Set module-global DETECTED_LANGUAGES tuple:
-
+  // Set module-global DETECTED_LANGUAGES tuple
   upto = 0;
-
   PyObject* detLangs = PyTuple_New(165);
-
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("ABKHAZIAN"));
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("AFAR"));
   PyTuple_SET_ITEM(detLangs, upto++, PyUnicode_FromString("AFRIKAANS"));

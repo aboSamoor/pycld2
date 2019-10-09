@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,94 +15,107 @@
 # limitations under the License.
 #
 
-from distutils.core import setup, Extension
-import distutils.core
-import platform
-import subprocess
-import sys
-import os
-import glob
-from os import path as p
+import io
+import re
+from os import path
 
-CLD2_PATH = 'cld2'
-BIND_PATH = 'bindings'
+import setuptools
 
-with open('README.rst') as readme_file:
-  readme = readme_file.read()
-
-# Test suite
-class cldtest(distutils.core.Command):
-    # user_options, initialize_options and finalize_options must be overriden.
-    user_options = []
-    def initialize_options(self):
-        pass
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        errno = subprocess.call([sys.executable, 'tests/cld_test.py'])
-        raise SystemExit(errno)
-
-src_files = (glob.glob(p.join(CLD2_PATH, 'internal', '*.cc')) +
-             [p.join(BIND_PATH, 'pycldmodule.cc'),
-              p.join(BIND_PATH, 'encodings.cc')])
+HERE = path.abspath(path.dirname(__file__))
+CLD2_PATH = path.join(HERE, "cld2")
+BIND_PATH = path.join(HERE, "bindings")
 
 
-# These files list  is taken from the cld2/internal/compile_libs.sh
-# target libcld2_full.so, we will build the largest detector ever!
-cld_files = ['cldutil.cc', 'cldutil_shared.cc', 'compact_lang_det.cc',
-             'compact_lang_det_hint_code.cc', 'compact_lang_det_impl.cc',
-             'debug.cc', 'fixunicodevalue.cc', 'generated_entities.cc',
-             'generated_language.cc', 'generated_ulscript.cc',
-             'getonescriptspan.cc', 'lang_script.cc', 'offsetmap.cc',
-             'scoreonescriptspan.cc', 'tote.cc', 'utf8statetable.cc',
-             'cld_generated_cjk_uni_prop_80.cc', 'cld2_generated_cjk_compatible.cc',
-             'cld_generated_cjk_delta_bi_32.cc', 'generated_distinct_bi_0.cc',
-             'cld2_generated_quad0122.cc', 'cld2_generated_deltaocta0122.cc',
-             'cld2_generated_distinctocta0122.cc',
-             'cld_generated_score_quad_octa_0122.cc']
-
-src_files = [p.join(CLD2_PATH, 'internal', f) for f in cld_files]
-
-src_files.extend([p.join(BIND_PATH, 'pycldmodule.cc'),
-                  p.join(BIND_PATH, 'encodings.cc')])
-include_dirs = [p.join(CLD2_PATH, 'internal'), p.join(CLD2_PATH, 'public')]
-
-module = Extension('pycld2._pycld2',
-                   language='c++',
-                   extra_compile_args=['-w', '-O2', '-m64', '-fPIC'],
-                   include_dirs=include_dirs,
-                   libraries = [],
-                   sources=src_files,
-                   )
-
-test_requirements = [
-    # TODO: put package test requirements here
+# See internal/compile_libs.sh for some detail.  Note that this is *not*
+# simply internal/*.cc
+src_files = [
+    path.join(CLD2_PATH, "internal/", i)
+    for i in (
+        "cld2_generated_cjk_compatible.cc",
+        "cld2_generated_deltaocta0122.cc",
+        "cld2_generated_distinctocta0122.cc",
+        "cld2_generated_quad0122.cc",
+        "cld_generated_cjk_delta_bi_32.cc",
+        "cld_generated_cjk_uni_prop_80.cc",
+        "cld_generated_score_quad_octa_0122.cc",
+        "cldutil.cc",
+        "cldutil_shared.cc",
+        "compact_lang_det.cc",
+        "compact_lang_det_hint_code.cc",
+        "compact_lang_det_impl.cc",
+        "debug.cc",
+        "fixunicodevalue.cc",
+        "generated_distinct_bi_0.cc",
+        "generated_entities.cc",
+        "generated_language.cc",
+        "generated_ulscript.cc",
+        "getonescriptspan.cc",
+        "lang_script.cc",
+        "offsetmap.cc",
+        "scoreonescriptspan.cc",
+        "tote.cc",
+        "utf8statetable.cc",
+    )
 ]
+src_files.extend(
+    [path.join(BIND_PATH, "pycldmodule.cc"), path.join(BIND_PATH, "encodings.cc")]
+)
+for i in src_files:
+    if not path.exists(i):
+        raise RuntimeError("Missing source file: %s" % i)
 
-setup(name='pycld2',
-      version='0.31',
-      author='Rami Al-Rfou',
-      author_email='rmyeid@gmail.com',
-      description='Python bindings around Google Chromium\'s embedded compact language detection library (CLD2)',
-      ext_modules = [module],
-      license = 'Apache2',
-      url = 'https://github.com/aboSamoor/pycld2',
-      classifiers = [
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: C++',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Topic :: Text Processing :: Linguistic'
+include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")]
+
+module = setuptools.Extension(
+    # First arg (name) is the full name of the extension, including
+    # any packages - ie. not a filename or pathname, but Python dotted
+    # name.
+    "pycld2._pycld2",
+    sources=src_files,
+    include_dirs=include_dirs,
+    language="c++",
+    # TODO: -m64 may break 32 bit builds
+    extra_compile_args=["-w", "-O2", "-m64", "-fPIC"],
+)
+
+# We define version as PYCLD2_VERSION in the C++ module.
+# Note: we could also use `define_macros` arg to setup()
+VERSION = re.search(
+    r'^#define\s+PYCLD2_VERSION\s+"([^"]+)"$',
+    io.open(path.join(BIND_PATH, "pycldmodule.cc"), encoding="utf-8").read(),
+    re.M,
+).group(1)
+
+if __name__ == "__main__":
+    setuptools.setup(
+        name="pycld2",
+        version=VERSION,
+        author="Rami Al-Rfou",
+        author_email="rmyeid@gmail.com",
+        maintainer="Brad Solomon",
+        maintainer_email="brad.solomon.1124@gmail.com",
+        description="Python bindings around Google Chromium's embedded compact language detection library (CLD2)",
+        long_description=open(path.join(HERE, "README.md")).read(),
+        long_description_content_type="text/markdown",
+        license="Apache2",
+        url="https://github.com/aboSamoor/pycld2",
+        classifiers=[
+            "License :: OSI Approved :: Apache Software License",
+            "Operating System :: MacOS :: MacOS X",
+            "Operating System :: Microsoft :: Windows",
+            "Operating System :: POSIX :: Linux",
+            "Programming Language :: C++",
+            "Programming Language :: Python :: 2",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3.4",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Development Status :: 4 - Beta",
+            "Intended Audience :: Developers",
+            "Topic :: Text Processing :: Linguistic",
         ],
-      packages=["pycld2"],
-      test_suite='tests',
-      tests_require=test_requirements,
-      )
+        packages=["pycld2"],
+        ext_modules=[module],
+    )

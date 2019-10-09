@@ -1,4 +1,8 @@
+include cld2/internal/*.cc
 include cld2/internal/*.h
 include cld2/public/*.h
+include bindings/*
 include README*
 include requirements.txt
+include Makefile
+include test_pycld2.py
