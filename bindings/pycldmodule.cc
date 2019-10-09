@@ -29,7 +29,7 @@
 
 // The version of the Python bindings, which gets set to _pycld2.__version__.
 // For a version of CLD2 itself, see CLD2::DetectLanguageVersion().
-#define PYCLD2_VERSION "0.40.dev0"
+#define PYCLD2_VERSION "0.40.dev1"
 
 // Implementation is in ./encodings.cc
 CLD2::Encoding EncodingFromName(const char *name);
@@ -380,7 +380,7 @@ init_pycld2()
 #ifdef IS_PY3K
   PyObject *m = PyModule_Create(&moduledef);
 #else
-  PyObject* m = Py_InitModule("cld", CLDMethods);
+  PyObject* m = Py_InitModule("_pycld2", CLDMethods);
 #endif
 
   if (m == NULL) {
