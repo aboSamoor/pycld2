@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import io
 import re
 from os import path
 
@@ -81,7 +82,7 @@ module = setuptools.Extension(
 # Note: we could also use `define_macros` arg to setup()
 VERSION = re.search(
     r'^#define\s+PYCLD2_VERSION\s+"([^"]+)"$',
-    open(path.join(BIND_PATH, "pycldmodule.cc"), encoding="utf-8").read(),
+    io.open(path.join(BIND_PATH, "pycldmodule.cc"), encoding="utf-8").read(),
     re.M,
 ).group(1)
 
