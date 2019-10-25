@@ -27,9 +27,9 @@ BIND_PATH = path.join(HERE, "bindings")
 
 
 # See internal/compile_libs.sh for some detail.  Note that this is *not*
-# simply internal/*.cc
+# simply internal/*.cc.  Issue #23: keep these relative for manifest.
 src_files = [
-    path.join(CLD2_PATH, "internal/", i)
+    path.join("cld2/internal/", i)
     for i in (
         "cld2_generated_cjk_compatible.cc",
         "cld2_generated_deltaocta0122.cc",
@@ -58,7 +58,7 @@ src_files = [
     )
 ]
 src_files.extend(
-    [path.join(BIND_PATH, "pycldmodule.cc"), path.join(BIND_PATH, "encodings.cc")]
+    ["bindings/pycldmodule.cc", "bindings/encodings.cc"]
 )
 for i in src_files:
     if not path.exists(i):
