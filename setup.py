@@ -17,6 +17,7 @@
 
 import io
 import re
+import sys
 from os import path
 
 import setuptools
@@ -66,6 +67,11 @@ for i in src_files:
 
 include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")]
 
+is_64bits = sys.maxsize > 2 ** 32
+compile_args = ["-w", "-O2", "-fPIC"]
+if is_64bits:
+    compile_args.append("-m64")
+
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
     # any packages - ie. not a filename or pathname, but Python dotted
@@ -74,8 +80,7 @@ module = setuptools.Extension(
     sources=src_files,
     include_dirs=include_dirs,
     language="c++",
-    # TODO: -m64 may break 32 bit builds
-    extra_compile_args=["-w", "-O2", "-m64", "-fPIC"],
+    extra_compile_args=compile_args,
 )
 
 # We define version as PYCLD2_VERSION in the C++ module.
