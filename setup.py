@@ -17,7 +17,7 @@
 
 import io
 import re
-import sys
+import platform
 from os import path
 
 import setuptools
@@ -67,9 +67,9 @@ for i in src_files:
 
 include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")]
 
-is_64bits = sys.maxsize > 2 ** 32
+
 compile_args = ["-w", "-O2", "-fPIC"]
-if is_64bits:
+if platform.machine() == 'x86_64':
     compile_args.append("-m64")
 
 module = setuptools.Extension(
