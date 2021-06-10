@@ -16,9 +16,9 @@
 #
 
 import io
-import re
 from os import path
-
+import platform
+import re
 import setuptools
 
 HERE = path.abspath(path.dirname(__file__))
@@ -66,6 +66,12 @@ for i in src_files:
 
 include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")]
 
+compile_args = ["-w", "-O2", "-fPIC"]
+if platform.machine() == 'x86_64':
+    compile_args.append('-m64')
+elif platform.machine() == 'aarch64':
+    compile_args.append('-march=armv8-a')
+
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
     # any packages - ie. not a filename or pathname, but Python dotted
@@ -75,7 +81,7 @@ module = setuptools.Extension(
     include_dirs=include_dirs,
     language="c++",
     # TODO: -m64 may break 32 bit builds
-    extra_compile_args=["-w", "-O2", "-m64", "-fPIC"],
+    extra_compile_args=compile_args,
 )
 
 # We define version as PYCLD2_VERSION in the C++ module.
