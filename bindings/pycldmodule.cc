@@ -60,7 +60,6 @@ static PyObject *
 detect(PyObject *self, PyObject *args, PyObject *kwArgs)
 {
   const char *bytes;
-  int numBytes;
 
   CLD2::CLDHints cldHints;
   cldHints.tld_hint = 0;
@@ -89,10 +88,9 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs)
 
   if (!PyArg_ParseTupleAndKeywords(args,
                                    kwArgs,
-                                   "s#|izzzziiiiiiii",
+                                   "s|izzzziiiiiiii",
                                    (char **) kwList,
                                    &bytes,
-                                   &numBytes,
                                    &isPlainText,
                                    &cldHints.tld_hint,
                                    &hintLanguage,
@@ -108,6 +106,7 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs)
                                    &flagBestEffort)) {
     return NULL;
   }
+  int numBytes = strlen(bytes);
 
   int flags = 0;
   if (flagScoreAsQuads != 0) {
