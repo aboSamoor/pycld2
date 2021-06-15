@@ -69,7 +69,7 @@ include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")
 compile_args = ["-w", "-O2", "-fPIC"]
 if platform.machine() == 'x86_64':
     compile_args.append('-m64')
-elif platform.machine() == 'aarch64':
+elif platform.machine() == 'aarch64' or platform.machine() == 'arm64':
     compile_args.append('-march=armv8-a')
 
 module = setuptools.Extension(
