@@ -226,7 +226,7 @@ static const char* const kDeltaOcta0527RecognizedLangScripts =
   "fa-Arab fi-Latn fj-Latn fo-Latn fr-Latn fy-Latn ga-Latn gd-Latn "
   "gl-Latn gn-Latn gv-Latn ha-Latn haw-Latn hi-Deva hr-Latn ht-Latn "
   "hu-Latn ia-Latn id-Latn ie-Latn ig-Latn ik-Latn is-Latn it-Latn "
-  "iw-Hebr ja-Hani jw-Latn kha-Latn kk-Arab kk-Cyrl kl-Latn ko-Hani "
+  "he-Hebr ja-Hani jw-Latn kha-Latn kk-Arab kk-Cyrl kl-Latn ko-Hani "
   "ks-Arab ks-Deva ku-Arab ky-Arab ky-Cyrl la-Latn lb-Latn lg-Latn "
   "ln-Latn lt-Latn lv-Latn mfe-Latn mg-Latn mi-Latn mk-Cyrl mn-Cyrl "
   "mr-Deva ms-Latn mt-Latn na-Latn ne-Deva nl-Latn nn-Latn no-Latn "
