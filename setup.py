@@ -19,13 +19,9 @@ import io
 import re
 import platform
 from os import path
+import platform
 
 import setuptools
-
-HERE = path.abspath(path.dirname(__file__))
-CLD2_PATH = path.join(HERE, "cld2")
-BIND_PATH = path.join(HERE, "bindings")
-
 
 # See internal/compile_libs.sh for some detail.  Note that this is *not*
 # simply internal/*.cc.  Issue #23: keep these relative for manifest.
@@ -58,19 +54,21 @@ src_files = [
         "utf8statetable.cc",
     )
 ]
-src_files.extend(
-    ["bindings/pycldmodule.cc", "bindings/encodings.cc"]
-)
+src_files.extend(["bindings/pycldmodule.cc", "bindings/encodings.cc"])
 for i in src_files:
     if not path.exists(i):
         raise RuntimeError("Missing source file: %s" % i)
 
-include_dirs = [path.join(CLD2_PATH, "internal"), path.join(CLD2_PATH, "public")]
+include_dirs = ["cld2/internal", "cld2/public"]
+
+if platform.system() == "Windows":
+    extra_compile_args = ["/O2"]
+else:
+    extra_compile_args = ["-w", "-O2", "-fPIC"]
 
 
-compile_args = ["-w", "-O2", "-fPIC"]
 if platform.machine() == 'x86_64':
-    compile_args.append("-m64")
+    extra_compile_args.append("-m64")
 
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
@@ -80,16 +78,18 @@ module = setuptools.Extension(
     sources=src_files,
     include_dirs=include_dirs,
     language="c++",
-    extra_compile_args=compile_args,
+    extra_compile_args=extra_compile_args,
 )
 
 # We define version as PYCLD2_VERSION in the C++ module.
 # Note: we could also use `define_macros` arg to setup()
-VERSION = re.search(
-    r'^#define\s+PYCLD2_VERSION\s+"([^"]+)"$',
-    io.open(path.join(BIND_PATH, "pycldmodule.cc"), encoding="utf-8").read(),
-    re.M,
-).group(1)
+with io.open("bindings/pycldmodule.cc", encoding="utf-8") as fr:
+    VERSION = re.search(
+        r'^#define\s+PYCLD2_VERSION\s+"([^"]+)"$', fr.read(), re.M
+    ).group(1)
+
+with io.open("README.md", encoding="utf-8") as fr:
+    long_description = fr.read()
 
 if __name__ == "__main__":
     setuptools.setup(
@@ -100,10 +100,7 @@ if __name__ == "__main__":
         maintainer="Brad Solomon",
         maintainer_email="brad.solomon.1124@gmail.com",
         description="Python bindings around Google Chromium's embedded compact language detection library (CLD2)",
-        long_description=io.open(
-            path.join(HERE, "README.md"),
-            encoding="utf-8"
-        ).read(),
+        long_description=long_description,
         long_description_content_type="text/markdown",
         license="Apache2",
         url="https://github.com/aboSamoor/pycld2",

@@ -106,4 +106,4 @@ This package exports these global constants:
 
 ## What About CLD3?
 
-Python bindings for [CLD3](https://github.com/google/cld3/) are available as a separate project, [`pycld3`](https://github.com/bsolomon1124/pycld3).
+Python bindings for [`CLD3`](https://github.com/google/cld3) are available over here [`gcld3`](https://pypi.org/project/gcld3/).
