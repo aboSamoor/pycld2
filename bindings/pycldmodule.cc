@@ -642,6 +642,7 @@ init_pycld2()
   }
 
   // Steals ref:
+  Py_INCREF(st->error);
   PyModule_AddObject(m, "error", st->error);
 #ifdef IS_PY3K
   return m;
