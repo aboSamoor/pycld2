@@ -135,7 +135,7 @@ static const TestPair kTestPair[] = {
   {HAITIAN_CREOLE,  kTeststr_ht_Latn},
   {HAUSA,  kTeststr_ha_Latn},
   {HAWAIIAN,  kTeststr_haw_Latn},
-  {HEBREW,  kTeststr_iw_Hebr},
+  {HEBREW,  kTeststr_he_Hebr},
   {HINDI,  kTeststr_hi_Deva},
   {HMONG,  kTeststr_blu_Latn},
   {HUNGARIAN,  kTeststr_hu_Latn},
