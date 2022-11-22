@@ -17,6 +17,7 @@
 
 import io
 import re
+import platform
 from os import path
 import platform
 
@@ -64,6 +65,10 @@ if platform.system() == "Windows":
     extra_compile_args = ["/O2"]
 else:
     extra_compile_args = ["-w", "-O2", "-fPIC"]
+
+
+if platform.machine() == 'x86_64':
+    extra_compile_args.append("-m64")
 
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
