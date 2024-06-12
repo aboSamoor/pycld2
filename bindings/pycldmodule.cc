@@ -29,7 +29,7 @@
 
 // The version of the Python bindings, which gets set to _pycld2.__version__.
 // For a version of CLD2 itself, see CLD2::DetectLanguageVersion().
-#define PYCLD2_VERSION "0.42"
+#define PYCLD2_VERSION "0.41"
 
 // Implementation is in ./encodings.cc
 CLD2::Encoding EncodingFromName(const char *name);
@@ -60,7 +60,6 @@ static PyObject *
 detect(PyObject *self, PyObject *args, PyObject *kwArgs)
 {
   const char *bytes;
-  int numBytes;
 
   CLD2::CLDHints cldHints;
   cldHints.tld_hint = 0;
@@ -89,10 +88,9 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs)
 
   if (!PyArg_ParseTupleAndKeywords(args,
                                    kwArgs,
-                                   "s#|izzzziiiiiiii",
+                                   "s|izzzziiiiiiii",
                                    (char **) kwList,
                                    &bytes,
-                                   &numBytes,
                                    &isPlainText,
                                    &cldHints.tld_hint,
                                    &hintLanguage,
@@ -108,6 +106,7 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs)
                                    &flagBestEffort)) {
     return NULL;
   }
+  int numBytes = strlen(bytes);
 
   int flags = 0;
   if (flagScoreAsQuads != 0) {
