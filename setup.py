@@ -60,10 +60,11 @@ for i in src_files:
 
 include_dirs = ["cld2/internal", "cld2/public"]
 
-if platform.system() == "Windows":
-    extra_compile_args = ["/O2"]
-else:
-    extra_compile_args = ["-w", "-O2", "-fPIC"]
+extra_compile_args = ["-w", "-O2", "-fPIC"]
+if platform.machine() == 'x86_64':
+    extra_compile_args.append('-m64')
+elif platform.machine() == 'aarch64':
+    extra_compile_args.append('-march=armv8-a')
 
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
