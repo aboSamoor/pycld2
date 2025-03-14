@@ -63,7 +63,13 @@ include_dirs = ["cld2/internal", "cld2/public"]
 if platform.system() == "Windows":
     extra_compile_args = ["/O2"]
 else:
-    extra_compile_args = ["-w", "-O2", "-fPIC"]
+    extra_compile_args = ["-w", "-O2", "-fPIC", "-Wno-narrowing"]
+
+compile_args = ["-w", "-O2", "-fPIC"]
+if platform.machine() == 'x86_64':
+    compile_args.append('-m64')
+elif platform.machine() == 'aarch64' or platform.machine() == 'arm64':
+    compile_args.append('-march=armv8-a')
 
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
@@ -112,6 +118,10 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            ""
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
             "Topic :: Text Processing :: Linguistic",
