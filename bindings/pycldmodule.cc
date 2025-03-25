@@ -59,7 +59,9 @@ static struct PYCLDState _state;
 static PyObject *
 detect(PyObject *self, PyObject *args, PyObject *kwArgs)
 {
-  const char *bytes;
+  const char *bytes = NULL;
+  Py_ssize_t numBytes = 0;
+  PyObject *inputBytes;
 
   CLD2::CLDHints cldHints;
   cldHints.tld_hint = 0;
@@ -88,9 +90,9 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs)
 
   if (!PyArg_ParseTupleAndKeywords(args,
                                    kwArgs,
-                                   "s|izzzziiiiiiii",
+                                   "O|izzzziiiiiiii",
                                    (char **) kwList,
-                                   &bytes,
+                                   &inputBytes,
                                    &isPlainText,
                                    &cldHints.tld_hint,
                                    &hintLanguage,
@@ -106,7 +108,19 @@ detect(PyObject *self, PyObject *args, PyObject *kwArgs)
                                    &flagBestEffort)) {
     return NULL;
   }
-  int numBytes = strlen(bytes);
+
+  // Support both text (Unicode) and bytes objects.
+  if (PyUnicode_Check(inputBytes)) {
+      bytes = PyUnicode_AsUTF8AndSize(inputBytes, &numBytes);
+      if (bytes == NULL)
+          return NULL;
+  } else if (PyBytes_Check(inputBytes)) {
+      if (PyBytes_AsStringAndSize(inputBytes, (char **) &bytes, &numBytes) == -1)
+          return NULL;
+  } else {
+      PyErr_SetString(PyExc_TypeError, "utf8Bytes must be str or bytes");
+      return NULL;
+  }
 
   int flags = 0;
   if (flagScoreAsQuads != 0) {
