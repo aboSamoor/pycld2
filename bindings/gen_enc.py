@@ -19,7 +19,7 @@ import re
 s = open('../../public/encodings.h').read()
 
 
-r = re.compile('\s*(.*?)\s+=\s*(\d+),')
+r = re.compile(r'\s*(.*?)\s+=\s*(\d+),')
 l = []
 for line in s.split('\n'):
   line = line.strip()
