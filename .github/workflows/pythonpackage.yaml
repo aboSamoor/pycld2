@@ -35,7 +35,7 @@ jobs:
         os: [ubuntu-22.04, macos-latest, windows-latest]
         arch: [auto64]
         include:
-        - os: ubuntu-latest
+        - os: ubuntu-22.04
           arch: aarch64
 
     name: Build wheels for ${{ matrix.os }}
