@@ -68,7 +68,7 @@ jobs:
 
       - name: Build wheels
         run: |
-          python -m cibuildwheel --output-dir wheelhouse
+          python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons False
 
       - uses: actions/upload-artifact@v4
         with:
