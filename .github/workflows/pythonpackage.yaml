@@ -1,5 +1,13 @@
 name: Python Package
-on: [push]
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  id-token: write  # Enables OIDC
+  contents: read
 
 jobs:
   tests:
@@ -35,30 +43,35 @@ jobs:
         os: [ubuntu-22.04, macos-latest, windows-latest]
         arch: [auto64]
         include:
-        - os: ubuntu-22.04
-          arch: aarch64
+          - os: ubuntu-22.04
+            arch: aarch64
 
     name: Build wheels for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: docker/setup-qemu-action@v1
-      if: ${{ matrix.arch == 'aarch64' }}
-      name: Set up QEMU
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install -U pip setuptools wheel cibuildwheel
-    - name: Build wheels
-      run: |
-        python -m cibuildwheel --output-dir wheelhouse
-    - uses: actions/upload-artifact@v2
-      with:
-        name: wheels
-        path: ./wheelhouse/*.whl
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        if: matrix.arch == 'aarch64'
+        uses: docker/setup-qemu-action@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel cibuildwheel
+
+      - name: Build wheels
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: wheelhouse/*.whl
 
   build-sdist:
     needs: [tests]
@@ -67,31 +80,34 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install -U pip setuptools wheel
-    - name: Build wheels
-      run: |
-        python setup.py sdist
-    - uses: actions/upload-artifact@v2
-      with:
-        path: dist/*.tar.gz
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel build
+
+      - name: Build sdist
+        run: |
+          python -m build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
 
   upload-pypi:
     needs: [build-wheels, build-sdist]
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: '*'
           path: dist
+          merge-multiple: true
 
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
+      - name: Publish package to PyPI (OIDC)
+        uses: pypa/gh-action-pypi-publish@release/v1
