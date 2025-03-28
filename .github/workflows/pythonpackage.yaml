@@ -14,7 +14,7 @@ permissions:
 jobs:
   tests:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-latest, windows-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
@@ -71,6 +71,7 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_PRERELEASE_PYTHONS: "false"
+          CIBW_SKIP: "pp*"
 
       - uses: actions/upload-artifact@v4
         with:
