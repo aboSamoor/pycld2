@@ -17,6 +17,7 @@
 
 import io
 import re
+import platform
 from os import path
 import platform
 
@@ -70,6 +71,10 @@ if platform.machine() == 'x86_64':
     compile_args.append('-m64')
 elif platform.machine() == 'aarch64' or platform.machine() == 'arm64':
     compile_args.append('-march=armv8-a')
+
+
+if platform.machine() == 'x86_64':
+    extra_compile_args.append("-m64")
 
 module = setuptools.Extension(
     # First arg (name) is the full name of the extension, including
