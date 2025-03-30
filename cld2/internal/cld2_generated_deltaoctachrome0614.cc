@@ -24,7 +24,7 @@
 //  nn-Latn=>no-Latn mo-Cyrl=>ro-Cyrl     --include=af-Latn ar-Arab be-Cyrl
 //  bg-Cyrl ca-Latn cs-Latn cy-Latn    da-Latn de-Latn el-Grek en-Latn
 //  es-Latn et-Latn fa-Arab fi-Latn fr-Latn    ga-Latn gd-Latn hi-Deva
-//  hr-Latn hu-Latn id-Latn is-Latn it-Latn iw-Hebr    ja-Hani ko-Hani
+//  hr-Latn hu-Latn id-Latn is-Latn it-Latn he-Hebr    ja-Hani ko-Hani
 //  lg-Latn lt-Latn lv-Latn mk-Cyrl ms-Latn nl-Latn no-Latn    pl-Latn
 //  pt-Latn ro-Latn ro-Cyrl ru-Cyrl rw-Latn sh-Cyrl sh-Latn sk-Latn sl-Latn
 //  sr-Cyrl    sv-Latn sw-Latn th-Thai tl-Latn tr-Latn uk-Cyrl vi-Latn
@@ -138,7 +138,7 @@ static const char* const kDeltaOctaChrome0614RecognizedLangScripts =
   "af-Latn ar-Arab az-Latn be-Cyrl bg-Cyrl bh-Deva blu-Latn bn-Beng "
   "ca-Latn ceb-Latn cs-Latn cy-Latn da-Latn de-Latn en-Latn es-Latn "
   "et-Latn eu-Latn fa-Arab fi-Latn fr-Latn ga-Latn gd-Latn gl-Latn "
-  "hi-Deva hr-Latn ht-Latn hu-Latn id-Latn is-Latn it-Latn iw-Hebr "
+  "hi-Deva hr-Latn ht-Latn hu-Latn id-Latn is-Latn it-Latn he-Hebr "
   "ja-Hani jw-Latn ko-Hani lg-Latn lt-Latn lv-Latn mk-Cyrl mr-Deva "
   "ms-Latn mt-Latn ne-Deva nl-Latn no-Latn pl-Latn pt-Latn ro-Cyrl "
   "ro-Latn ru-Cyrl rw-Latn sk-Latn sl-Latn sq-Latn sr-Cyrl sr-Latn "
